@@ -1,0 +1,192 @@
+{
+  "device": {
+    "hostname": "mk",
+    "os_type": "windows",
+    "os_version": "10.0.26200",
+    "ip_address": "10.5.50.14"
+  },
+  "score": 72.22,
+  "scanned_at": "2026-03-06T12:51:15.811670",
+  "results": [
+    {
+      "check_id": "WIN-ACC-001",
+      "title": "Minimum Password Length",
+      "description": "Ensures users must create passwords of at least 14 characters.",
+      "status": "FAIL",
+      "severity": "high",
+      "actual_value": "0 characters",
+      "expected_value": "14 or more characters",
+      "remediation": "Run: net accounts /minpwlen:14"
+    },
+    {
+      "check_id": "WIN-ACC-002",
+      "title": "Maximum Password Age",
+      "description": "Passwords should expire within 365 days to limit exposure.",
+      "status": "PASS",
+      "severity": "medium",
+      "actual_value": "42 days",
+      "expected_value": "365 days or fewer",
+      "remediation": "Run: net accounts /maxpwage:365"
+    },
+    {
+      "check_id": "WIN-ACC-003",
+      "title": "Account Lockout Threshold",
+      "description": "Accounts should lock after 5 or fewer failed login attempts.",
+      "status": "FAIL",
+      "severity": "high",
+      "actual_value": "10 attempts",
+      "expected_value": "1\u20135 attempts",
+      "remediation": "Run: net accounts /lockoutthreshold:5"
+    },
+    {
+      "check_id": "WIN-ACC-004",
+      "title": "Account Lockout Duration",
+      "description": "Locked accounts should remain locked for at least 15 minutes.",
+      "status": "FAIL",
+      "severity": "medium",
+      "actual_value": "10 minutes",
+      "expected_value": "15 minutes or more",
+      "remediation": "Run: net accounts /lockoutduration:15"
+    },
+    {
+      "check_id": "WIN-USR-001",
+      "title": "Guest Account Disabled",
+      "description": "The built-in Guest account provides unauthenticated access and should be disabled.",
+      "status": "PASS",
+      "severity": "critical",
+      "actual_value": "Disabled",
+      "expected_value": "Disabled",
+      "remediation": "Run: Disable-LocalUser -Name 'Guest'"
+    },
+    {
+      "check_id": "WIN-USR-002",
+      "title": "Administrator Account Renamed",
+      "description": "The built-in Administrator account (SID *-500) should be renamed to reduce attack surface.",
+      "status": "FAIL",
+      "severity": "medium",
+      "actual_value": "Administrator",
+      "expected_value": "Any name except 'Administrator'",
+      "remediation": "Rename via: Local Users and Groups \u2192 Users \u2192 Right-click Administrator \u2192 Rename"
+    },
+    {
+      "check_id": "WIN-FW-001",
+      "title": "Windows Firewall \u2014 Domain Profile",
+      "description": "Firewall must be enabled for the Domain network profile.",
+      "status": "PASS",
+      "severity": "critical",
+      "actual_value": "Enabled",
+      "expected_value": "Enabled",
+      "remediation": "Enable via: Windows Defender Firewall \u2192 Turn Windows Defender Firewall on"
+    },
+    {
+      "check_id": "WIN-FW-002",
+      "title": "Windows Firewall \u2014 Private Profile",
+      "description": "Firewall must be enabled for Private network profile.",
+      "status": "PASS",
+      "severity": "critical",
+      "actual_value": "Enabled",
+      "expected_value": "Enabled",
+      "remediation": "Enable via: Windows Defender Firewall settings"
+    },
+    {
+      "check_id": "WIN-FW-003",
+      "title": "Windows Firewall \u2014 Public Profile",
+      "description": "Firewall must be enabled for Public network profile (most important \u2014 untrusted networks).",
+      "status": "PASS",
+      "severity": "critical",
+      "actual_value": "Enabled",
+      "expected_value": "Enabled",
+      "remediation": "Enable via: Windows Defender Firewall settings"
+    },
+    {
+      "check_id": "WIN-RDP-001",
+      "title": "RDP Network Level Authentication",
+      "description": "RDP connections must use NLA to verify user identity before a full session is established.",
+      "status": "PASS",
+      "severity": "high",
+      "actual_value": "NLA Enabled",
+      "expected_value": "NLA Enabled",
+      "remediation": "Enable NLA: System Properties \u2192 Remote \u2192 'Allow connections only from computers running Remote Desktop with NLA'"
+    },
+    {
+      "check_id": "WIN-RDP-002",
+      "title": "RDP Disabled If Unused",
+      "description": "Remote Desktop should be disabled if not actively needed.",
+      "status": "PASS",
+      "severity": "medium",
+      "actual_value": "RDP Disabled",
+      "expected_value": "RDP Disabled (or enabled with NLA + firewall rules)",
+      "remediation": "Disable RDP: System Properties \u2192 Remote \u2192 Uncheck 'Allow remote connections'"
+    },
+    {
+      "check_id": "WIN-UPD-001",
+      "title": "Automatic Windows Updates Enabled",
+      "description": "Windows Update should be enabled to receive security patches automatically.",
+      "status": "PASS",
+      "severity": "high",
+      "actual_value": "Updates Enabled",
+      "expected_value": "Updates Enabled",
+      "remediation": "Enable via: Settings \u2192 Windows Update \u2192 Advanced options \u2192 Automatic updates"
+    },
+    {
+      "check_id": "WIN-AV-001",
+      "title": "Windows Defender Real-Time Protection",
+      "description": "Real-time antivirus protection should always be active.",
+      "status": "PASS",
+      "severity": "critical",
+      "actual_value": "Enabled",
+      "expected_value": "Enabled",
+      "remediation": "Enable via: Windows Security \u2192 Virus & threat protection \u2192 Real-time protection"
+    },
+    {
+      "check_id": "WIN-AUD-001",
+      "title": "Audit Logon Events",
+      "description": "Windows should log both successful and failed logon attempts.",
+      "status": "PASS",
+      "severity": "high",
+      "actual_value": "Logon/Logoff\r\n  Logon                                   Success and Failure",
+      "expected_value": "Success and Failure",
+      "remediation": "Enable via: Local Security Policy \u2192 Audit Policy \u2192 Audit logon events"
+    },
+    {
+      "check_id": "WIN-AUD-002",
+      "title": "Audit Account Logon Events",
+      "description": "Credential validation events should be logged.",
+      "status": "FAIL",
+      "severity": "high",
+      "actual_value": "Credential Validation                   No Auditing",
+      "expected_value": "Success and Failure",
+      "remediation": "Enable via: Local Security Policy \u2192 Advanced Audit Policy \u2192 Account Logon"
+    },
+    {
+      "check_id": "WIN-SVC-001",
+      "title": "Telnet Service Disabled",
+      "description": "Telnet transmits data in plaintext \u2014 must be disabled.",
+      "status": "PASS",
+      "severity": "medium",
+      "actual_value": "Not found",
+      "expected_value": "Disabled",
+      "remediation": "Disable via: services.msc \u2192 find 'Telnet' \u2192 Properties \u2192 Startup type: Disabled"
+    },
+    {
+      "check_id": "WIN-SVC-002",
+      "title": "Remote Registry Disabled",
+      "description": "Remote Registry allows remote editing of the registry.",
+      "status": "PASS",
+      "severity": "medium",
+      "actual_value": "Disabled",
+      "expected_value": "Disabled",
+      "remediation": "Disable via: services.msc \u2192 find 'RemoteRegistry' \u2192 Properties \u2192 Startup type: Disabled"
+    },
+    {
+      "check_id": "WIN-SVC-003",
+      "title": "SNMP Service Disabled",
+      "description": "SNMP v1/v2 have known vulnerabilities.",
+      "status": "PASS",
+      "severity": "medium",
+      "actual_value": "Not found",
+      "expected_value": "Disabled",
+      "remediation": "Disable via: services.msc \u2192 find 'SNMP' \u2192 Properties \u2192 Startup type: Disabled"
+    }
+  ]
+}

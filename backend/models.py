@@ -1,23 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text, Enum
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
-import enum
-
-
-class SeverityEnum(str, enum.Enum):
-    critical = "critical"
-    high = "high"
-    medium = "medium"
-    low = "low"
-    info = "info"
-
-
-class StatusEnum(str, enum.Enum):
-    pass_ = "PASS"
-    fail = "FAIL"
-    warn = "WARN"
-    skip = "SKIP"
 
 
 class User(Base):
@@ -37,7 +21,7 @@ class Device(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     hostname = Column(String, nullable=False)
-    os_type = Column(String, nullable=False)        # "windows" or "linux"
+    os_type = Column(String, nullable=False)
     os_version = Column(String)
     ip_address = Column(String)
     owner_id = Column(Integer, ForeignKey("users.id"))
@@ -52,7 +36,7 @@ class Scan(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     device_id = Column(Integer, ForeignKey("devices.id"))
-    score = Column(Float, default=0.0)              # Overall compliance % (0–100)
+    score = Column(Float, default=0.0)
     total_checks = Column(Integer, default=0)
     passed = Column(Integer, default=0)
     failed = Column(Integer, default=0)
@@ -68,13 +52,13 @@ class CheckResult(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     scan_id = Column(Integer, ForeignKey("scans.id"))
-    check_id = Column(String, nullable=False)       # e.g. "WIN-ACC-001"
+    check_id = Column(String, nullable=False)
     title = Column(String, nullable=False)
     description = Column(Text)
-    status = Column(Enum(StatusEnum), nullable=False)
-    severity = Column(Enum(SeverityEnum), nullable=False)
-    actual_value = Column(String)                   # What was found on the system
-    expected_value = Column(String)                 # What CIS expects
-    remediation = Column(Text)                      # How to fix it
+    status = Column(String, nullable=False)       # PASS / FAIL / WARN / SKIP
+    severity = Column(String, nullable=False)     # critical / high / medium / low
+    actual_value = Column(String)
+    expected_value = Column(String)
+    remediation = Column(Text)
 
     scan = relationship("Scan", back_populates="results")

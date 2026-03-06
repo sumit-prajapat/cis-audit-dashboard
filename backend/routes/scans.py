@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Device, Scan, CheckResult, StatusEnum
+from models import Device, Scan, CheckResult
 from schemas import ScanCreate, ScanOut, ScanSummary
 from typing import List
 
@@ -12,21 +12,27 @@ router = APIRouter()
 def submit_scan(payload: ScanCreate, db: Session = Depends(get_db)):
     """Receive scan results from the Python agent."""
 
-    # Get or create device
+    # Get or create device (no owner required — agent runs standalone)
     device = db.query(Device).filter(Device.hostname == payload.device.hostname).first()
     if not device:
-        device = Device(**payload.device.model_dump(), owner_id=1)  # default owner for now
+        device = Device(
+            hostname=payload.device.hostname,
+            os_type=payload.device.os_type,
+            os_version=payload.device.os_version,
+            ip_address=payload.device.ip_address,
+            owner_id=None,   # ← no user required
+        )
         db.add(device)
         db.commit()
         db.refresh(device)
 
     # Calculate scores
     results = payload.results
-    total = len(results)
-    passed = sum(1 for r in results if r.status == StatusEnum.pass_)
-    failed = sum(1 for r in results if r.status == StatusEnum.fail)
-    warnings = sum(1 for r in results if r.status == StatusEnum.warn)
-    score = round((passed / total) * 100, 2) if total > 0 else 0.0
+    total    = len(results)
+    passed   = sum(1 for r in results if r.status.value == "PASS")
+    failed   = sum(1 for r in results if r.status.value == "FAIL")
+    warnings = sum(1 for r in results if r.status.value == "WARN")
+    score    = round((passed / total) * 100, 2) if total > 0 else 0.0
 
     # Save scan
     scan = Scan(
@@ -43,7 +49,17 @@ def submit_scan(payload: ScanCreate, db: Session = Depends(get_db)):
 
     # Save individual check results
     for r in results:
-        check = CheckResult(scan_id=scan.id, **r.model_dump())
+        check = CheckResult(
+            scan_id=scan.id,
+            check_id=r.check_id,
+            title=r.title,
+            description=r.description,
+            status=r.status.value,
+            severity=r.severity.value,
+            actual_value=r.actual_value,
+            expected_value=r.expected_value,
+            remediation=r.remediation,
+        )
         db.add(check)
     db.commit()
     db.refresh(scan)
@@ -53,13 +69,11 @@ def submit_scan(payload: ScanCreate, db: Session = Depends(get_db)):
 
 @router.get("/scans", response_model=List[ScanSummary])
 def list_scans(db: Session = Depends(get_db)):
-    """List all scans (summaries, no check details)."""
     return db.query(Scan).order_by(Scan.scanned_at.desc()).all()
 
 
 @router.get("/scans/{scan_id}", response_model=ScanOut)
 def get_scan(scan_id: int, db: Session = Depends(get_db)):
-    """Get a single scan with full check-by-check results."""
     scan = db.query(Scan).filter(Scan.id == scan_id).first()
     if not scan:
         raise HTTPException(status_code=404, detail="Scan not found")
@@ -68,11 +82,12 @@ def get_scan(scan_id: int, db: Session = Depends(get_db)):
 
 @router.get("/devices")
 def list_devices(db: Session = Depends(get_db)):
-    """List all registered devices with their last scan score."""
     devices = db.query(Device).all()
     result = []
     for d in devices:
-        last_scan = db.query(Scan).filter(Scan.device_id == d.id).order_by(Scan.scanned_at.desc()).first()
+        last_scan = db.query(Scan).filter(
+            Scan.device_id == d.id
+        ).order_by(Scan.scanned_at.desc()).first()
         result.append({
             "id": d.id,
             "hostname": d.hostname,
