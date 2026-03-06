@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🛡️ CIS Audit & Compliance Dashboard
 
 A full-stack platform that runs **CIS Benchmark checks** on Windows 11 and Linux machines, displays results on a live compliance dashboard, tracks score history over time, and generates downloadable PDF reports.
@@ -82,3 +83,6 @@ The agent runs CIS checks on the current machine and POSTs results to the API.
 ## 👨‍💻 Author
 
 Built as a resume project showcasing Cybersecurity + Full Stack + DevOps skills.
+=======
+# cis-audit-dashboard
+>>>>>>> 30744c41273c030e5ceb0d8cf0c9a7af4cb5d81a
