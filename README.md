@@ -8,11 +8,11 @@
 [![API Docs](https://img.shields.io/badge/API%20Docs-HuggingFace-yellow?style=for-the-badge&logo=huggingface)](https://mk1311-cis-audit-api.hf.space/docs)
 [![GitHub](https://img.shields.io/badge/GitHub-sumit--prajapat-181717?style=for-the-badge&logo=github)](https://github.com/sumit-prajapat/cis-audit-dashboard)
 
-![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=flat-square&logo=fastapi)
-![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=flat-square&logo=postgresql)
-![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=flat-square&logo=docker)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=flat-square&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=flat-square&logo=docker&logoColor=white)
 
 </div>
 
@@ -22,7 +22,6 @@
 
 The **CIS Audit & Compliance Dashboard** is a full-stack security auditing tool that automatically scans Windows 11 and Linux systems against **CIS (Center for Internet Security) Benchmark** controls. It tracks compliance scores over time, visualizes results in a real-time dashboard, and generates professional PDF reports.
 
-> Built as part of the **Smart India Hackathon (SIH)** — addressing the need for automated, standardized security compliance auditing in enterprise environments.
 
 ---
 
@@ -253,9 +252,7 @@ API_URL=http://localhost:8000
 
 ---
 
-## 🤝 Team
 
-Built by a 6-member team for **Smart India Hackathon (SIH) 2026**
 
 ---
 
@@ -267,7 +264,6 @@ MIT License — feel free to use and modify for your own projects.
 
 <div align="center">
 
-**Made with ❤️ for SIH 2026**
 
 ⭐ Star this repo if you found it useful!
 
