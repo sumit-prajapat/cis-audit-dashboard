@@ -1,41 +1,35 @@
-const config = {
-  critical: { bg: '#ff456622', color: '#ff4566', label: 'CRITICAL' },
-  high:     { bg: '#ff456614', color: '#ff6b80', label: 'HIGH'     },
-  medium:   { bg: '#ffc94022', color: '#ffc940', label: 'MEDIUM'   },
-  low:      { bg: '#00ff8814', color: '#00ff88', label: 'LOW'      },
-  info:     { bg: '#00d4ff14', color: '#00d4ff', label: 'INFO'     },
-}
-
-const statusConfig = {
-  PASS: { bg: '#00ff8814', color: '#00ff88' },
-  FAIL: { bg: '#ff456622', color: '#ff4566' },
-  WARN: { bg: '#ffc94022', color: '#ffc940' },
-  SKIP: { bg: '#4a608022', color: '#4a6080' },
-}
-
 export function SeverityBadge({ severity }) {
-  const c = config[severity?.toLowerCase()] || config.info
-  return (
-    <span style={{
-      background: c.bg, color: c.color,
-      fontFamily: 'JetBrains Mono', fontSize: 10,
-      fontWeight: 700, letterSpacing: 1,
-      padding: '3px 8px', borderRadius: 4,
-    }}>
-      {c.label}
-    </span>
-  )
+  const cls = {
+    critical: 'badge-critical',
+    high:     'badge-high',
+    medium:   'badge-medium',
+    low:      'badge-low',
+  }[severity?.toLowerCase()] || 'badge-low'
+  return <span className={`badge ${cls}`}>{severity?.toUpperCase()}</span>
 }
 
 export function StatusBadge({ status }) {
-  const c = statusConfig[status] || statusConfig.SKIP
+  const cls = {
+    PASS: 'badge-pass',
+    FAIL: 'badge-fail',
+    WARN: 'badge-warn',
+  }[status] || 'badge-warn'
+  return <span className={`badge ${cls}`}>{status}</span>
+}
+
+export function ScoreBadge({ score }) {
+  const cls = score >= 80 ? 'score-good' : score >= 60 ? 'score-ok' : 'score-bad'
+  return <span className={`${cls}`} style={{ fontFamily:'JetBrains Mono', fontWeight:700 }}>{Math.round(score)}%</span>
+}
+
+export function GradeBadge({ score }) {
+  const grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : score >= 60 ? 'D' : 'F'
+  const colors = { A:'#00ff88', B:'#39e5b2', C:'#ffc940', D:'#ff8a50', F:'#ff4566' }
+  const c = colors[grade]
   return (
-    <span style={{
-      background: c.bg, color: c.color,
-      fontFamily: 'JetBrains Mono', fontSize: 11,
-      fontWeight: 700, padding: '3px 10px', borderRadius: 4,
-    }}>
-      {status}
-    </span>
+    <div style={{ width:38, height:38, borderRadius:8, background:`${c}15`, border:`1px solid ${c}40`,
+      display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <span style={{ fontFamily:'JetBrains Mono', fontSize:18, fontWeight:800, color:c }}>{grade}</span>
+    </div>
   )
 }
