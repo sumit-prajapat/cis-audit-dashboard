@@ -3,10 +3,10 @@
     "hostname": "mk",
     "os_type": "windows",
     "os_version": "10.0.26200",
-    "ip_address": "10.5.50.14"
+    "ip_address": "10.125.33.1"
   },
-  "score": 72.22,
-  "scanned_at": "2026-03-06T12:51:15.811670",
+  "score": 66.67,
+  "scanned_at": "2026-05-22T09:40:28.269526",
   "results": [
     {
       "check_id": "WIN-ACC-001",
@@ -142,9 +142,9 @@
       "check_id": "WIN-AUD-001",
       "title": "Audit Logon Events",
       "description": "Windows should log both successful and failed logon attempts.",
-      "status": "PASS",
+      "status": "FAIL",
       "severity": "high",
-      "actual_value": "Logon/Logoff\r\n  Logon                                   Success and Failure",
+      "actual_value": "No auditing",
       "expected_value": "Success and Failure",
       "remediation": "Enable via: Local Security Policy \u2192 Audit Policy \u2192 Audit logon events"
     },
@@ -154,7 +154,7 @@
       "description": "Credential validation events should be logged.",
       "status": "FAIL",
       "severity": "high",
-      "actual_value": "Credential Validation                   No Auditing",
+      "actual_value": "No auditing",
       "expected_value": "Success and Failure",
       "remediation": "Enable via: Local Security Policy \u2192 Advanced Audit Policy \u2192 Account Logon"
     },

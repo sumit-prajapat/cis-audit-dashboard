@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+API_URL = "https://mk1311-cis-audit-api.hf.space"
 
 
 def send_results(device: dict, results: list) -> bool:
