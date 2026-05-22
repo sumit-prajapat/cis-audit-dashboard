@@ -13,8 +13,6 @@ import Login       from './pages/Login'
 import Register    from './pages/Register'
 
 function ProtectedLayout({ children }) {
-  const token = localStorage.getItem('token')
-  if (!token) return <Navigate to="/login" replace />
   return (
     <div className="flex h-screen bg-slate-900 overflow-hidden">
       <Sidebar />
@@ -50,7 +48,7 @@ export default function App() {
         <Route path="/settings"   element={<ProtectedLayout><Settings /></ProtectedLayout>} />
 
         {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>
