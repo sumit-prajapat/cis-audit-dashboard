@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import api from '../api'
+import api, { extractApiErrorMessage } from '../api'
 
 const PLANS = [
   {
@@ -57,7 +57,7 @@ export default function Billing() {
       // Redirect to Stripe
       window.location.href = res.data.url
     } catch (err) {
-      alert(err.response?.data?.detail || 'Billing error — please try again')
+      alert(extractApiErrorMessage(err) || 'Billing error - please try again')
     } finally {
       setUpgrading(null)
     }
@@ -68,7 +68,7 @@ export default function Billing() {
       const res = await api.post('/billing/portal')
       window.location.href = res.data.url
     } catch (err) {
-      alert(err.response?.data?.detail || 'Error opening billing portal')
+      alert(extractApiErrorMessage(err) || 'Error opening billing portal')
     }
   }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import api from '../api'
+import api, { extractApiErrorMessage, persistAuth } from '../api'
 
 export default function InviteAccept() {
   const { token }     = useParams()
@@ -22,7 +22,7 @@ export default function InviteAccept() {
       const res = await api.get(`/orgs/invite/${token}`)
       setInvite(res.data)
     } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid or expired invite link')
+      setError(extractApiErrorMessage(err) || 'Invalid or expired invite link')
     } finally {
       setLoading(false)
     }
@@ -30,7 +30,7 @@ export default function InviteAccept() {
 
   async function handleAccept(e) {
     e.preventDefault()
-    if (password.length < 8) { setError('Password must be at least 8 characters'); return }
+    if (password.length < 12) { setError('Password must be at least 12 characters.'); return }
     setSubmitting(true)
     setError('')
     try {
@@ -38,15 +38,10 @@ export default function InviteAccept() {
         full_name: fullName.trim(),
         password,
       })
-      // Save token and user info
-      localStorage.setItem('token', res.data.access_token)
-      localStorage.setItem('user', JSON.stringify({
-        role:     res.data.role,
-        org_name: res.data.org_name,
-      }))
+      persistAuth(res.data)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to accept invite')
+      setError(extractApiErrorMessage(err) || 'Failed to accept invite')
     } finally {
       setSubmitting(false)
     }
@@ -109,9 +104,9 @@ export default function InviteAccept() {
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="Minimum 8 characters"
+                placeholder="Minimum 12 characters"
                 required
-                minLength={8}
+                minLength={12}
                 className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
               />
             </div>

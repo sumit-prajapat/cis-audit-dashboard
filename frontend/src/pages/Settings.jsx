@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import api from '../api'
+import api, { extractApiErrorMessage, readStoredUser } from '../api'
 
 export default function Settings() {
   const [org, setOrg]           = useState(null)
@@ -15,7 +15,7 @@ export default function Settings() {
   const [inviteError, setInviteError]   = useState('')
 
   // Current user role
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+  const currentUser = readStoredUser()
   const isOwner     = currentUser.role === 'owner'
   const isAdmin     = ['owner', 'admin'].includes(currentUser.role)
 
@@ -43,7 +43,7 @@ export default function Settings() {
       await api.put('/orgs/me', { name: orgName.trim() })
       setOrg(prev => ({ ...prev, name: orgName.trim() }))
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to update org name')
+      alert(extractApiErrorMessage(err) || 'Failed to update org name')
     } finally {
       setSaving(false)
     }
@@ -60,7 +60,7 @@ export default function Settings() {
       setInviteEmail('')
       fetchOrg()
     } catch (err) {
-      setInviteError(err.response?.data?.detail || 'Failed to send invite')
+      setInviteError(extractApiErrorMessage(err) || 'Failed to send invite')
     } finally {
       setInviting(false)
     }
@@ -72,7 +72,7 @@ export default function Settings() {
       await api.delete(`/orgs/invite/${inviteId}`)
       fetchOrg()
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to revoke invite')
+      alert(extractApiErrorMessage(err) || 'Failed to revoke invite')
     }
   }
 
@@ -82,7 +82,7 @@ export default function Settings() {
       await api.delete(`/orgs/members/${userId}`)
       fetchOrg()
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to remove member')
+      alert(extractApiErrorMessage(err) || 'Failed to remove member')
     }
   }
 
@@ -91,7 +91,7 @@ export default function Settings() {
       await api.put(`/orgs/members/${userId}/role`, { role: newRole })
       fetchOrg()
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to change role')
+      alert(extractApiErrorMessage(err) || 'Failed to change role')
     }
   }
 

@@ -1,5 +1,5 @@
-import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip,
-         ResponsiveContainer, ReferenceLine, CartesianGrid, defs, linearGradient, stop } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, Tooltip,
+         ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts'
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null

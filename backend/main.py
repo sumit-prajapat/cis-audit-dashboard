@@ -1,27 +1,43 @@
 """
-main.py — CIS Audit SaaS API
-Phase 1: Added billing + orgs routers, updated CORS for SaaS
+main.py — CIS Audit SaaS API v2.0
+Enhanced with: Service Layer, RBAC, Error Handling, Audit Logging
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routes import auth, scans, reports, billing, orgs
+from routes import auth, scans, reports, billing, orgs, compliance
+from middleware import setup_error_handlers
 import os
+from dotenv import load_dotenv
+import logging
 
-# Create all tables on startup (safe — uses IF NOT EXISTS)
-Base.metadata.create_all(bind=engine)
+load_dotenv()
 
-app = FastAPI(
-    title       = "CIS Audit Dashboard — SaaS API",
-    description = "Automated CIS Benchmark security auditing with multi-tenant SaaS.",
-    version     = "2.0.0",
+# Setup logging
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO"),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
-# ── CORS ─────────────────────────────────────────────────
-origins = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-]
+# Create FastAPI app
+app = FastAPI(
+    title       = "CIS Audit Dashboard — Enterprise SaaS API",
+    description = "Production-grade CIS Benchmark security auditing with multi-tenant SaaS capabilities",
+    version     = "3.0.0",
+    docs_url    = "/api/docs",
+    redoc_url   = "/api/redoc",
+    openapi_url = "/api/openapi.json"
+)
+
+# ── Database Initialization ──────────────────────────────
+@app.on_event("startup")
+def initialize_database():
+    """Create missing tables on startup (transitioned to Alembic migrations)"""
+    Base.metadata.create_all(bind=engine)
+
+
+# ── CORS Configuration ───────────────────────────────────
+origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",") if origin.strip()]
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "")
 if FRONTEND_URL:
@@ -31,18 +47,78 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins     = origins,
     allow_credentials = True,
-    allow_methods     = ["*"],
-    allow_headers     = ["*"],
+    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers     = ["Authorization", "Content-Type", "X-CSRF-Token"],
+    max_age          = 3600,
 )
 
-# ── Routers ───────────────────────────────────────────────
-app.include_router(auth.router,     prefix="/auth",     tags=["Auth"])
-app.include_router(scans.router,    prefix="/api",      tags=["Scans"])
-app.include_router(reports.router,  prefix="/api",      tags=["Reports"])
-app.include_router(billing.router,  prefix="/billing",  tags=["Billing"])
-app.include_router(orgs.router,     prefix="/orgs",     tags=["Organizations"])
+# ── Security Middlewares ─────────────────────────────────
+from middleware.rate_limiter import RateLimiterMiddleware
+from middleware.security_headers import SecurityHeadersMiddleware
+from middleware.csrf_protection import CSRFMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
+# Add Session Middleware (required for some CSRF/auth flows)
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "fallback-secret-key-123"))
 
+# Add Trusted Host Middleware (Strict Host headers)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
+
+# Add Security Headers Middleware
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Add CSRF Middleware for unsafe requests that rely on cookies
+app.add_middleware(
+    CSRFMiddleware,
+    exempt_paths={"/auth/login", "/auth/logout", "/auth/logout-all", "/auth/register", "/auth/refresh", "/auth/password-reset/request", "/auth/password-reset/confirm", "/auth/verify-email", "/auth/verify-email/request"},
+)
+
+# Add Rate Limiting Middleware
+app.add_middleware(RateLimiterMiddleware, requests_limit=5000, window_seconds=3600)
+
+# ── Error Handlers ───────────────────────────────────────
+setup_error_handlers(app)
+
+# ── API Routers ──────────────────────────────────────────
+app.include_router(auth.router,       prefix="/auth",     tags=["Auth"])
+app.include_router(scans.router,      prefix="/api",      tags=["Scans"])
+app.include_router(reports.router,    prefix="/api",      tags=["Reports"])
+app.include_router(billing.router,    prefix="/billing",  tags=["Billing"])
+app.include_router(orgs.router,       prefix="/orgs",     tags=["Organizations"])
+app.include_router(compliance.router, prefix="/api",      tags=["Compliance"])
+
+# ── Health Check ─────────────────────────────────────────
 @app.get("/", tags=["Health"])
 def health_check():
-    return {"status": "ok", "message": "CIS Audit SaaS API v2.0.0", "version": "2.0.0"}
+    return {
+        "status": "ok",
+        "message": "CIS Audit SaaS API v3.0.0 - Production Ready",
+        "version": "3.0.0",
+        "features": [
+            "Multi-Tenancy",
+            "RBAC",
+            "Audit Logging",
+            "Service Layer Architecture",
+            "Enterprise Error Handling"
+        ]
+    }
+
+
+@app.get("/health", tags=["Health"])
+def liveness_probe():
+    return {"status": "alive"}
+
+
+@app.get("/ready", tags=["Health"])
+def readiness_probe():
+    """Readiness probe for Kubernetes"""
+    try:
+        # Quick database check
+        from database import SessionLocal
+        db = SessionLocal()
+        db.execute("SELECT 1")
+        db.close()
+        return {"status": "ready"}
+    except Exception as e:
+        return {"status": "not_ready", "error": str(e)}, 503

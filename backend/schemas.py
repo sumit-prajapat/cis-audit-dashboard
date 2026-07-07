@@ -27,9 +27,11 @@ class UserCreate(BaseModel):
 
 
 class UserOut(BaseModel):
-    id: int
+    id: str
     email: str
-    username: str
+    full_name: Optional[str] = None
+    org_id: Optional[str] = None
+    role: Optional[str] = None
     created_at: datetime
 
     class Config:
@@ -55,8 +57,12 @@ class DeviceCreate(BaseModel):
 
 
 class DeviceOut(DeviceCreate):
-    id: int
-    owner_id: int
+    id: str
+    org_id: Optional[str] = None
+    user_id: Optional[str] = None
+    agent_version: Optional[str] = None
+    last_seen: Optional[datetime] = None
+    is_active: bool = True
     created_at: datetime
 
     class Config:
@@ -76,8 +82,8 @@ class CheckResultIn(BaseModel):
 
 
 class CheckResultOut(CheckResultIn):
-    id: int
-    scan_id: int
+    id: str
+    scan_id: str
 
     class Config:
         from_attributes = True
@@ -90,8 +96,8 @@ class ScanCreate(BaseModel):
 
 
 class ScanOut(BaseModel):
-    id: int
-    device_id: int
+    id: str
+    device_id: str
     score: float
     total_checks: int
     passed: int
@@ -105,8 +111,8 @@ class ScanOut(BaseModel):
 
 
 class ScanSummary(BaseModel):
-    id: int
-    device_id: int
+    id: str
+    device_id: str
     score: float
     total_checks: int
     passed: int

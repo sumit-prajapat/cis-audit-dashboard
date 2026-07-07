@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../api'
+import api, { extractApiErrorMessage } from '../api'
 
 const PLANS = [
   { id: 'free',    label: 'Free',    price: 0,   devices: 1,  desc: 'Try it out. 1 device, no team.' },
@@ -14,10 +14,12 @@ export default function Onboarding() {
   const [orgName, setOrgName] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('free')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   async function handleFinish() {
     setLoading(true)
+    setError('')
     try {
       // Update org name if changed
       if (orgName.trim()) {
@@ -33,8 +35,7 @@ export default function Onboarding() {
         window.location.href = res.data.url
       }
     } catch (err) {
-      console.error(err)
-      navigate('/dashboard')
+      setError(extractApiErrorMessage(err) || 'Unable to finish setup')
     } finally {
       setLoading(false)
     }
@@ -147,6 +148,8 @@ export default function Onboarding() {
                  `Start ${PLANS.find(p => p.id === selectedPlan)?.label} plan →`}
               </button>
             </div>
+
+            {error && <p className="text-center text-red-400 text-sm mt-3">{error}</p>}
 
             {selectedPlan !== 'free' && (
               <p className="text-center text-slate-500 text-xs mt-3">

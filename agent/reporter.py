@@ -9,10 +9,43 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_URL = "https://mk1311-cis-audit-api.hf.space"
+API_URL = os.getenv("CIS_API_URL", "http://localhost:8000").rstrip("/")
+AUTH_TOKEN = os.getenv("CIS_AUTH_TOKEN")
 
 
-def send_results(device: dict, results: list) -> bool:
+def get_api_url() -> str:
+    return os.getenv("CIS_API_URL", API_URL).rstrip("/")
+
+
+def login_for_token(email: str, password: str, remember_me: bool = True) -> str | None:
+    """Log in to the dashboard API and return an access token."""
+    try:
+        response = requests.post(
+            f"{get_api_url()}/auth/login",
+            data={
+                "username": email,
+                "password": password,
+                "remember_me": str(remember_me).lower(),
+            },
+            timeout=15,
+        )
+        if response.status_code == 200:
+            return response.json().get("access_token")
+
+        print(f"  API login failed {response.status_code}: {response.text}")
+        return None
+    except requests.exceptions.ConnectionError:
+        print("  Cannot connect to API. Is Docker running? (docker-compose up)")
+        return None
+    except requests.exceptions.Timeout:
+        print("  API login request timed out.")
+        return None
+    except Exception as e:
+        print(f"  Unexpected login error: {e}")
+        return None
+
+
+def send_results(device: dict, results: list, token: str | None = None) -> bool:
     """
     POST scan results to the backend API.
     Returns True if successful, False if it failed.
@@ -22,10 +55,19 @@ def send_results(device: dict, results: list) -> bool:
         "results": results,
     }
 
+    auth_token = token or AUTH_TOKEN
+
+    if not auth_token:
+        print("  No auth token provided. Log in with --email/--password or pass --token.")
+        return False
+
+    headers = {"Authorization": f"Bearer {auth_token}"}
+
     try:
         response = requests.post(
-            f"{API_URL}/api/scans",
+            f"{get_api_url()}/api/scans",
             json=payload,
+            headers=headers,
             timeout=15,
         )
         if response.status_code == 201:

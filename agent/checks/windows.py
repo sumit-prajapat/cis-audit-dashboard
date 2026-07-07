@@ -344,11 +344,13 @@ def check_service_disabled(service_name, check_id, title, description):
     )
 
 
+import concurrent.futures
+
 # ── Main Entry Point ──────────────────────────────────────────────────
 
 def run_windows_checks():
     """Run all Windows CIS checks and return a list of results."""
-    print("  Running Windows 11 CIS Benchmark checks...")
+    print("  Running Windows 11 CIS Benchmark checks (Parallel Execution)...")
 
     checks = [
         # Account policy
@@ -383,23 +385,27 @@ def run_windows_checks():
 
     results = []
 
-    for check_fn in checks:
-        try:
-            res = check_fn()
-            icon = "✅" if res["status"] == "PASS" else ("❌" if res["status"] == "FAIL" else "⚠️ ")
-            print(f"    {icon} {res['check_id']} — {res['title']}")
-            results.append(res)
-        except Exception as e:
-            print(f"    ⚠️  Check failed with error: {e}")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_check = {executor.submit(check_fn): check_fn.__name__ for check_fn in checks}
+        for future in concurrent.futures.as_completed(future_to_check):
+            try:
+                res = future.result()
+                icon = "✅" if res["status"] == "PASS" else ("❌" if res["status"] == "FAIL" else "⚠️ ")
+                print(f"    {icon} {res['check_id']} — {res['title']}")
+                results.append(res)
+            except Exception as e:
+                print(f"    ⚠️  Check failed with error: {e}")
 
-    for svc_name, cid, title, desc in risky_services:
-        try:
-            res = check_service_disabled(svc_name, cid, title, desc)
-            icon = "✅" if res["status"] == "PASS" else "⚠️ "
-            print(f"    {icon} {res['check_id']} — {res['title']}")
-            results.append(res)
-        except Exception as e:
-            print(f"    ⚠️  Service check failed: {e}")
+        future_to_svc = {executor.submit(check_service_disabled, *svc): svc[1] for svc in risky_services}
+        for future in concurrent.futures.as_completed(future_to_svc):
+            try:
+                res = future.result()
+                icon = "✅" if res["status"] == "PASS" else "⚠️ "
+                print(f"    {icon} {res['check_id']} — {res['title']}")
+                results.append(res)
+            except Exception as e:
+                print(f"    ⚠️  Service check failed: {e}")
 
     print(f"\n  ✔ {len(results)} checks completed.")
     return results
+

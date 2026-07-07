@@ -8,6 +8,8 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:8000',
       '/auth': 'http://localhost:8000',
+      '/orgs': 'http://localhost:8000',
+      '/billing': 'http://localhost:8000',
     }
   }
 })

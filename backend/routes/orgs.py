@@ -12,13 +12,14 @@ Endpoints:
 import os
 import secrets
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Response
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 
 from database import get_db
 from models import Organization, User, OrgMember, OrgInvite, Device
-from routes.auth import get_current_user, get_password_hash
+from routes.auth import get_current_user, get_password_hash, _normalize_role
+from services.auth_service import AuthService
 
 router = APIRouter()
 
@@ -32,10 +33,14 @@ class UpdateOrgRequest(BaseModel):
 
 class InviteRequest(BaseModel):
     email: EmailStr
-    role: str = "viewer"   # viewer | admin
+    role: str = "read_only"   # read_only | auditor | admin
 
 class ChangeRoleRequest(BaseModel):
     role: str
+
+
+def normalize_role(role: str) -> str:
+    return _normalize_role(role)
 
 
 # ── GET /orgs/me ──────────────────────────────────────────
@@ -143,8 +148,9 @@ def invite_member(
         )
 
     # Validate role
-    if body.role not in ("admin", "viewer"):
-        raise HTTPException(status_code=400, detail="Role must be 'admin' or 'viewer'")
+    role = normalize_role(body.role)
+    if role not in ("admin", "auditor", "read_only"):
+        raise HTTPException(status_code=400, detail="Role must be 'admin', 'auditor', or 'read_only'")
 
     # Check if user already a member
     existing_user = db.query(User).filter(User.email == body.email).first()
@@ -171,7 +177,7 @@ def invite_member(
     invite = OrgInvite(
         org_id     = org.id,
         email      = body.email,
-        role       = body.role,
+        role       = role,
         token      = token,
         invited_by = current_user.id,
         expires_at = datetime.utcnow() + timedelta(hours=INVITE_TTL_HOURS),
@@ -227,6 +233,7 @@ class AcceptInviteRequest(BaseModel):
 def accept_invite(
     token: str,
     body: AcceptInviteRequest,
+    response: Response,
     db: Session = Depends(get_db),
 ):
     """
@@ -256,14 +263,15 @@ def accept_invite(
             hashed_password = get_password_hash(body.password),
             full_name       = body.full_name,
             org_id          = org.id,
-            role            = invite.role,
+            role            = normalize_role(invite.role),
+            password_changed_at = datetime.utcnow(),
         )
         db.add(user)
         db.flush()
     else:
         # Update existing user's org context
         user.org_id = org.id
-        user.role   = invite.role
+        user.role   = normalize_role(invite.role)
 
     # Create OrgMember record
     member = OrgMember(
@@ -277,22 +285,27 @@ def accept_invite(
     # Mark invite as accepted
     invite.accepted = True
 
+    session, access_token, refresh_token, csrf_token = AuthService.create_auth_session(
+        db,
+        user,
+        remember_me=False,
+        user_agent=None,
+        ip_address=None,
+    )
+
     db.commit()
 
-    # Return JWT token (import create_access_token from auth)
-    from routes.auth import create_access_token
-    token_data = {
-        "sub":    user.id,
-        "org_id": str(org.id),
-        "role":   user.role,
-    }
-    access_token = create_access_token(data=token_data)
+    response.set_cookie("refresh_token", refresh_token, httponly=True, samesite=os.getenv("COOKIE_SAMESITE", "lax"), secure=os.getenv("COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}, path="/auth")
+    response.set_cookie("csrf_token", csrf_token, httponly=False, samesite=os.getenv("COOKIE_SAMESITE", "lax"), secure=os.getenv("COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}, path="/")
 
     return {
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type":   "bearer",
         "org_name":     org.name,
-        "role":         user.role,
+        "role":         normalize_role(user.role),
+        "session_id":    session.session_id,
+        "csrf_token":    csrf_token,
     }
 
 
@@ -345,8 +358,9 @@ def change_member_role(
     if current_user.role != "owner":
         raise HTTPException(status_code=403, detail="Only owners can change member roles")
 
-    if body.role not in ("admin", "viewer"):
-        raise HTTPException(status_code=400, detail="Role must be 'admin' or 'viewer'")
+    role = normalize_role(body.role)
+    if role not in ("admin", "auditor", "read_only"):
+        raise HTTPException(status_code=400, detail="Role must be 'admin', 'auditor', or 'read_only'")
 
     member = db.query(OrgMember).filter(
         OrgMember.org_id  == current_user.org_id,
@@ -359,15 +373,15 @@ def change_member_role(
     if member.role == "owner":
         raise HTTPException(status_code=403, detail="Cannot change the owner's role")
 
-    member.role = body.role
+    member.role = role
 
     # Sync role to user record
     user = db.query(User).filter(User.id == user_id).first()
     if user:
-        user.role = body.role
+        user.role = role
 
     db.commit()
-    return {"message": f"Role updated to {body.role}"}
+    return {"message": f"Role updated to {role}"}
 
 
 # ── DELETE /orgs/invite/:invite_id ───────────────────────

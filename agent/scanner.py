@@ -7,10 +7,19 @@ Run this script on any machine you want to audit.
 import platform
 import socket
 import json
+import argparse
+import os
 from datetime import datetime
-from checks.windows import run_windows_checks
-from checks.linux import run_linux_checks
-from reporter import send_results
+from reporter import login_for_token, send_results
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Run CIS checks and upload results to the dashboard.")
+    parser.add_argument("--email", help="Dashboard account email. Used to log in before uploading.")
+    parser.add_argument("--password", help="Dashboard account password. Used to log in before uploading.")
+    parser.add_argument("--token", help="Dashboard access token. Alternative to --email/--password.")
+    parser.add_argument("--api-url", help="Dashboard API URL, for example http://localhost:8000.")
+    return parser.parse_args()
 
 
 def get_device_info():
@@ -30,6 +39,19 @@ def calculate_score(results):
         return 0.0
     passed = sum(1 for r in results if r["status"] == "PASS")
     return round((passed / total) * 100, 2)
+
+
+def save_backup(device, score, results):
+    """Save scan results locally when upload cannot complete."""
+    backup = {
+        "device": device,
+        "score": score,
+        "scanned_at": datetime.now().isoformat(),
+        "results": results,
+    }
+    with open("scan_backup.json", "w") as f:
+        json.dump(backup, f, indent=2)
+    print("Backup saved to scan_backup.json\n")
 
 
 def print_summary(results, score):
@@ -60,6 +82,10 @@ def print_summary(results, score):
 
 
 def main():
+    args = parse_args()
+    if args.api_url:
+        os.environ["CIS_API_URL"] = args.api_url.rstrip("/")
+
     print("\n🛡️  CIS Audit Agent Starting...")
     print(f"   Time     : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
@@ -72,8 +98,10 @@ def main():
 
     # Step 2 — Run the right checks based on OS
     if device["os_type"] == "windows":
+        from checks.windows import run_windows_checks
         results = run_windows_checks()
     else:
+        from checks.linux import run_linux_checks
         results = run_linux_checks()
 
     # Step 3 — Calculate score
@@ -83,23 +111,24 @@ def main():
     print_summary(results, score)
 
     # Step 5 — Send results to the API
+    token = args.token or os.getenv("CIS_AUTH_TOKEN")
+    if not token and args.email and args.password:
+        print("\nLogging in to dashboard API...")
+        token = login_for_token(args.email, args.password)
+        if not token:
+            print("Login failed. Results printed above but NOT uploaded.")
+            print("Check the dashboard email/password, or pass a valid access token with --token.")
+            save_backup(device, score, results)
+            return
+
     print("\n📤 Sending results to dashboard API...")
-    success = send_results(device, results)
+    success = send_results(device, results, token=token)
 
     if success:
         print("✅ Results saved! Open http://localhost:3000 to view your dashboard.\n")
     else:
         print("⚠️  Could not reach the API. Results printed above but NOT saved.\n")
-        # Save locally as backup
-        backup = {
-            "device": device,
-            "score": score,
-            "scanned_at": datetime.now().isoformat(),
-            "results": results
-        }
-        with open("scan_backup.json", "w") as f:
-            json.dump(backup, f, indent=2)
-        print("💾 Backup saved to scan_backup.json\n")
+        save_backup(device, score, results)
 
 
 if __name__ == "__main__":

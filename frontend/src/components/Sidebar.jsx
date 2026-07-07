@@ -1,119 +1,108 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import api from '../api'
+import { useEffect, useState } from 'react'
+import api, { clearSession, logout as logoutRequest, readStoredUser } from '../api'
+import {
+  Activity, BarChart3, CreditCard, FileText, Gauge, LogOut, Monitor,
+  Radar, ScanLine, Settings, ShieldCheck
+} from 'lucide-react'
 
 const NAV = [
-  { to: '/dashboard', icon: '📊', label: 'Dashboard' },
-  { to: '/devices',   icon: '💻', label: 'Devices' },
-  { to: '/scans',     icon: '🔍', label: 'Scans' },
+  { group: 'Command', items: [
+    { to: '/dashboard', icon: Gauge, label: 'Executive' },
+    { to: '/operations', icon: Activity, label: 'Security Ops' },
+    { to: '/compliance', icon: ShieldCheck, label: 'Compliance' },
+  ]},
+  { group: 'Evidence', items: [
+    { to: '/devices', icon: Monitor, label: 'Assets' },
+    { to: '/scans', icon: ScanLine, label: 'Scans' },
+    { to: '/risk', icon: Radar, label: 'Risk' },
+    { to: '/reports', icon: FileText, label: 'Reports' },
+  ]},
+  { group: 'Admin', items: [
+    { to: '/billing', icon: CreditCard, label: 'Billing' },
+    { to: '/settings', icon: Settings, label: 'Settings' },
+  ]},
 ]
 
-const BOTTOM_NAV = [
-  { to: '/billing',   icon: '💳', label: 'Billing' },
-  { to: '/settings',  icon: '⚙️',  label: 'Settings' },
-]
+export const SIDEBAR_COMMANDS = NAV.flatMap(section =>
+  section.items.map(item => ({ ...item, group: section.group, keywords: item.label }))
+)
 
 export default function Sidebar() {
   const navigate = useNavigate()
   const [billingStatus, setBillingStatus] = useState(null)
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const user = readStoredUser()
 
   useEffect(() => {
-    // Load billing status for plan badge
     api.get('/billing/status').then(r => setBillingStatus(r.data)).catch(() => {})
   }, [])
 
   function handleLogout() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    navigate('/login')
+    logoutRequest().catch(() => {})
+      .finally(() => {
+        clearSession()
+        navigate('/login')
+      })
   }
 
-  const planLabel = billingStatus?.plan_label || 'Free'
-  const isOverLimit = billingStatus &&
-    billingStatus.device_limit !== -1 &&
-    billingStatus.device_count >= billingStatus.device_limit
+  const planLabel = billingStatus?.plan_label || user.plan || 'Free'
 
   return (
-    <aside className="w-56 flex flex-col bg-slate-900 border-r border-slate-800 py-4 flex-shrink-0">
-      {/* Logo */}
-      <div className="px-4 mb-6">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🛡️</span>
-          <span className="text-white font-bold text-base tracking-tight">CIS Audit</span>
+    <aside className="w-[264px] hidden md:flex flex-col bg-[#080c17]/95 border-r border-white/10 py-4 flex-shrink-0">
+      <div className="px-4 mb-5">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg border border-emerald-400/30 bg-emerald-400/10 flex items-center justify-center">
+            <ShieldCheck size={21} className="text-emerald-300" />
+          </div>
+          <div>
+            <div className="text-white font-bold text-sm tracking-tight">CIS Audit</div>
+            <div className="font-mono text-[10px] text-cyan-300 uppercase tracking-[0.18em]">SOC Console</div>
+          </div>
         </div>
-        {/* Plan badge */}
-        <div className="mt-2 flex items-center gap-1.5">
-          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-            billingStatus?.plan === 'free'
-              ? 'bg-slate-700 text-slate-400'
-              : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-          }`}>
-            {planLabel}
-          </span>
-          {isOverLimit && (
-            <span className="text-xs text-red-400 font-medium">Device limit</span>
-          )}
+        <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.035] p-3">
+          <div className="text-xs text-slate-500">Workspace</div>
+          <div className="text-sm text-slate-100 truncate mt-1">{user.org_name || 'Default organization'}</div>
+          <div className="mt-2 inline-flex rounded border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider text-cyan-300">{planLabel}</div>
         </div>
       </div>
 
-      {/* Main nav */}
-      <nav className="flex-1 px-2 space-y-0.5">
-        {NAV.map(item => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-blue-600/20 text-blue-400'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`
-            }
-          >
-            <span className="text-base w-5 text-center">{item.icon}</span>
-            {item.label}
-          </NavLink>
+      <nav className="flex-1 px-3 space-y-5 overflow-y-auto">
+        {NAV.map(section => (
+          <div key={section.group}>
+            <div className="px-2 mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-600">{section.group}</div>
+            <div className="space-y-1">
+              {section.items.map(item => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                      isActive
+                        ? 'bg-emerald-400/10 text-emerald-300 border border-emerald-400/20'
+                        : 'text-slate-400 hover:text-white hover:bg-white/[0.05] border border-transparent'
+                    }`
+                  }
+                >
+                  <item.icon size={17} />
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 
-      {/* Bottom nav: Billing + Settings */}
-      <div className="px-2 space-y-0.5 border-t border-slate-800 pt-3 mt-3">
-        {BOTTOM_NAV.map(item => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-blue-600/20 text-blue-400'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`
-            }
-          >
-            <span className="text-base w-5 text-center">{item.icon}</span>
-            {item.label}
-            {/* Red dot on Billing if device limit reached */}
-            {item.to === '/billing' && isOverLimit && (
-              <span className="ml-auto w-2 h-2 rounded-full bg-red-500"></span>
-            )}
-          </NavLink>
-        ))}
-
-        {/* User / logout */}
-        <div className="px-3 py-2 mt-2 flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white flex-shrink-0">
-              {(user.email || 'U')[0].toUpperCase()}
-            </div>
-            <span className="text-xs text-slate-400 truncate">{user.email || user.role || 'User'}</span>
+      <div className="px-4 pt-4 border-t border-white/10">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center text-xs text-white">
+            {(user.email || 'U')[0].toUpperCase()}
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-slate-500 hover:text-red-400 text-xs ml-1 flex-shrink-0 transition-colors"
-            title="Log out"
-          >
-            ⏻
+          <div className="min-w-0 flex-1">
+            <div className="text-xs text-slate-300 truncate">{user.email || 'User'}</div>
+            <div className="text-[10px] text-slate-600 capitalize">{user.role || 'viewer'}</div>
+          </div>
+          <button onClick={handleLogout} className="text-slate-500 hover:text-red-300" title="Log out">
+            <LogOut size={16} />
           </button>
         </div>
       </div>
