@@ -60,15 +60,24 @@ def initialize_database():
 origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",") if origin.strip()]
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "")
-if FRONTEND_URL:
+if FRONTEND_URL and FRONTEND_URL not in origins:
     origins.append(FRONTEND_URL)
+
+# Add Vercel and Hugging Face URLs
+vercel_url = "https://cis-audit-dashboard.vercel.app"
+hf_url = "https://mk1311-cis-audit-api.hf.space"
+if vercel_url not in origins:
+    origins.append(vercel_url)
+if hf_url not in origins:
+    origins.append(hf_url)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins     = origins,
     allow_credentials = True,
     allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers     = ["Authorization", "Content-Type", "X-CSRF-Token"],
+    allow_headers     = ["Authorization", "Content-Type", "X-CSRF-Token", "X-Requested-With"],
+    expose_headers    = ["Set-Cookie"],
     max_age          = 3600,
 )
 

@@ -1,0 +1,26 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    # Run every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Ping Hugging Face Backend
+      run: |
+        echo "Pinging Hugging Face backend..."
+        curl -f https://huggingface.co/spaces/mk1311/cis-audit-api || echo "HF ping failed"
+        
+    - name: Check Health Endpoint
+      run: |
+        echo "Checking health endpoint..."
+        curl -f https://mk1311-cis-audit-api.hf.space/health || echo "Health check failed"
+        
+    - name: Log Status
+      run: |
+        echo "Keep-alive ping completed at $(date)"

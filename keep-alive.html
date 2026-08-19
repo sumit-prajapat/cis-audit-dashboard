@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CIS Audit Backend Keep-Alive</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: monospace;
+            background: #0a0e1a;
+            color: #4ade80;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .log { 
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log div { padding: 4px 0; }
+        .success { color: #4ade80; }
+        .error { color: #ef4444; }
+        .info { color: #60a5fa; }
+        button {
+            background: #4ade80;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 CIS Audit Backend Keep-Alive Monitor</h1>
+    <p>Pinging backend every 10 minutes to prevent sleep...</p>
+    
+    <div>
+        <button onclick="pingNow()">Ping Now</button>
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="toggleAuto()">Toggle Auto (Currently: <span id="status">ON</span>)</button>
+    </div>
+    
+    <div class="log" id="log"></div>
+
+    <script>
+        const BACKEND_URL = 'https://mk1311-cis-audit-api.hf.space';
+        const PING_INTERVAL = 10 * 60 * 1000; // 10 minutes
+        let autoMode = true;
+        let intervalId;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function pingBackend() {
+            try {
+                log('🔄 Pinging backend...', 'info');
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                log(`✅ Backend is ${data.status} - ${data.message}`, 'success');
+            } catch (error) {
+                log(`❌ Ping failed: ${error.message}`, 'error');
+            }
+        }
+
+        function pingNow() {
+            pingBackend();
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function toggleAuto() {
+            autoMode = !autoMode;
+            document.getElementById('status').textContent = autoMode ? 'ON' : 'OFF';
+            
+            if (autoMode) {
+                startAutoPing();
+                log('✅ Auto-ping enabled', 'success');
+            } else {
+                if (intervalId) clearInterval(intervalId);
+                log('⏸️ Auto-ping disabled', 'info');
+            }
+        }
+
+        function startAutoPing() {
+            if (intervalId) clearInterval(intervalId);
+            pingBackend(); // Immediate ping
+            intervalId = setInterval(pingBackend, PING_INTERVAL);
+        }
+
+        // Start auto-ping on load
+        log('🚀 Keep-alive monitor started', 'success');
+        startAutoPing();
+    </script>
+</body>
+</html>
