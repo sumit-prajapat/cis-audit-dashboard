@@ -1,0 +1,50 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/main.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "frontend/dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/orgs/(.*)",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/billing/(.*)",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/health(.*)",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/dist/$1"
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "SECRET_KEY": "@secret_key",
+    "FRONTEND_URL": "https://cis-audit-dashboard.vercel.app",
+    "ALLOWED_ORIGINS": "https://cis-audit-dashboard.vercel.app",
+    "COOKIE_SECURE": "true",
+    "COOKIE_SAMESITE": "none"
+  }
+}

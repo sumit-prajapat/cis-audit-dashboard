@@ -11,6 +11,7 @@ from middleware import setup_error_handlers
 import os
 from dotenv import load_dotenv
 import logging
+from mangum import Mangum  # For Vercel deployment
 
 load_dotenv()
 
@@ -157,3 +158,7 @@ def readiness_probe(db: Session = Depends(get_db)):
             status_code=503,
             content={"status": "not_ready", "database": "disconnected", "error": str(e)}
         )
+
+
+# ── Vercel Serverless Handler ────────────────────────────
+handler = Mangum(app, lifespan="off")
