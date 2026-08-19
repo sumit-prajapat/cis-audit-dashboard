@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Variable Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0e1a;
+            color: #e0e0e0;
+        }
+        h1 {
+            color: #00ff88;
+            border-bottom: 2px solid #00ff88;
+            padding-bottom: 10px;
+        }
+        .test-box {
+            background: #1a1f2e;
+            border: 1px solid #2a3f5f;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success {
+            border-left: 4px solid #00ff88;
+            background: #0a2f1f;
+        }
+        .error {
+            border-left: 4px solid #ff4444;
+            background: #2f0a0a;
+        }
+        .warning {
+            border-left: 4px solid #ffaa00;
+            background: #2f1f0a;
+        }
+        code {
+            background: #0d1117;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #00d4ff;
+        }
+        button {
+            background: #00ff88;
+            color: #0a0e1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #00cc66;
+        }
+        #result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Environment Variable Diagnostic</h1>
+    
+    <div class="test-box warning">
+        <h3>⚠️ Note</h3>
+        <p>This is a <strong>static HTML file</strong>. It cannot access Vite's <code>import.meta.env</code> variables.</p>
+        <p>To test if environment variables are working, check the <strong>browser console</strong> on the main app pages (login/register).</p>
+    </div>
+
+    <div class="test-box">
+        <h3>📋 What to Check</h3>
+        <ol>
+            <li>Open: <a href="https://cis-audit-dashboard.vercel.app/register" target="_blank" style="color: #00d4ff;">https://cis-audit-dashboard.vercel.app/register</a></li>
+            <li>Press <strong>F12</strong> to open DevTools</li>
+            <li>Go to <strong>Console</strong> tab</li>
+            <li>Look for one of these messages:</li>
+        </ol>
+        
+        <h4>✅ If Environment Variable is SET:</h4>
+        <p>You should <strong>NOT</strong> see any warnings about VITE_API_URL</p>
+        
+        <h4>❌ If Environment Variable is NOT SET:</h4>
+        <p>You should see: <code>⚠️ VITE_API_URL is not set. API requests may fail.</code></p>
+    </div>
+
+    <div class="test-box">
+        <h3>🧪 Manual API Tests</h3>
+        <p>Test the backend API directly:</p>
+        
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <button onclick="testCORS()">Test CORS</button>
+        <button onclick="testRegister()">Test Register</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>📝 Vercel Environment Variables</h3>
+        <p>Make sure you have set in Vercel Dashboard:</p>
+        <ul>
+            <li><strong>Name:</strong> <code>VITE_API_URL</code></li>
+            <li><strong>Value:</strong> <code>https://mk1311-cis-audit-api.hf.space</code></li>
+            <li><strong>Environment:</strong> Production ✅ Preview ✅ Development ✅</li>
+        </ul>
+        <p><strong>Important:</strong> After adding/changing the variable, you MUST redeploy!</p>
+    </div>
+
+    <script>
+        const API_URL = 'https://mk1311-cis-audit-api.hf.space';
+        const result = document.getElementById('result');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            result.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+        }
+
+        async function testHealth() {
+            result.textContent = '';
+            log('Testing health endpoint...');
+            
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('Health check passed!', 'success');
+                    log(`Response: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log(`Health check failed: ${response.status}`, 'error');
+                    log(`Response: ${JSON.stringify(data, null, 2)}`);
+                }
+            } catch (error) {
+                log(`Network error: ${error.message}`, 'error');
+                log('This might be a CORS issue or the server is unreachable.');
+            }
+        }
+
+        async function testCORS() {
+            result.textContent = '';
+            log('Testing CORS configuration...');
+            
+            try {
+                const response = await fetch(`${API_URL}/`, {
+                    method: 'GET',
+                    headers: {
+                        'Origin': 'https://cis-audit-dashboard.vercel.app',
+                    }
+                });
+                
+                const corsHeader = response.headers.get('Access-Control-Allow-Origin');
+                
+                if (corsHeader) {
+                    log('CORS is configured!', 'success');
+                    log(`Access-Control-Allow-Origin: ${corsHeader}`);
+                } else {
+                    log('CORS header not found', 'error');
+                }
+                
+                const data = await response.json();
+                log(`Response: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                log(`CORS test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRegister() {
+            result.textContent = '';
+            log('Testing registration endpoint...');
+            log('Note: This will fail if test@example.com already exists');
+            
+            const testData = {
+                email: 'test@example.com',
+                password: 'TestPassword123!@#',
+                full_name: 'Test User',
+                org_name: 'Test Organization'
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('Registration successful!', 'success');
+                    log(`Response: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log(`Registration failed: ${response.status}`, 'error');
+                    log(`Error: ${JSON.stringify(data, null, 2)}`);
+                    
+                    if (data.detail === 'Email already registered') {
+                        log('This is expected if you already registered this email.', 'info');
+                    }
+                }
+            } catch (error) {
+                log(`Network error: ${error.message}`, 'error');
+                log('Check if backend is running and CORS is configured.');
+            }
+        }
+
+        // Auto-run health check on load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 500);
+        });
+    </script>
+</body>
+</html>

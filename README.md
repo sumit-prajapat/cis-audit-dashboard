@@ -2,24 +2,41 @@
 
 A full-stack **enterprise-grade** cybersecurity compliance platform that runs **CIS Benchmark checks** on Windows and Linux machines, displays results on a live compliance dashboard with 6 specialized views, tracks score history over time, and generates downloadable PDF reports.
 
-**Status**: Production Architecture | Active Development  
-**Version**: 1.0.0-beta
+**Status**: 🚀 Production Deployed | Active Maintenance  
+**Version**: 3.0.0  
+**Deployment**: Vercel (Frontend) + Hugging Face (Backend) + Supabase (Database)
 
 ---
 
-## ⚡ QUICK START (30 Minutes)
+## ⚡ QUICK START
 
-### Prerequisites
+### 🌐 **Live Demo** (Deployed Production)
+
+**Frontend**: https://cis-audit-dashboard.vercel.app  
+**Backend API**: https://mk1311-cis-audit-api.hf.space  
+**Database**: Supabase PostgreSQL (Managed)
+
+**Test Account** (after deployment is fixed):
+- Email: `admin@test.com`
+- Password: `StrongPass123!@#`
+
+> ⚠️ **Current Status**: Frontend deployed, but needs environment variable configuration. See [IMMEDIATE_ACTIONS.md](IMMEDIATE_ACTIONS.md) for fix instructions.
+
+---
+
+### 🐳 Local Development Setup (30 Minutes)
+
+#### Prerequisites
 
 - **Python 3.11+** ([Download](https://www.python.org/downloads/))
 - **Node.js 18+** ([Download](https://nodejs.org/))
 - **Docker Desktop** ([Download](https://www.docker.com/products/docker-desktop/))
 
-### Windows Quick Start
+#### Windows Quick Start
 
 ```cmd
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/cis-audit-dashboard.git
+git clone https://github.com/sumit-prajapat/cis-audit-dashboard.git
 cd cis-audit-dashboard
 
 # 2. Test your setup
@@ -29,7 +46,7 @@ TEST_SETUP.bat
 START_PROJECT.bat
 ```
 
-### Manual Setup
+#### Manual Setup
 
 ```bash
 # 1. Create .env file
@@ -314,13 +331,14 @@ Test Coverage:
 
 ## 📖 Documentation
 
-- **[Quick Start Guide](#-quick-start-30-minutes)** - Get running in 30 minutes
-- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment checklist
-- **[API Documentation](http://localhost:8000/api/docs)** - Interactive API docs (when running)
+- **[🚀 IMMEDIATE ACTIONS](IMMEDIATE_ACTIONS.md)** - **FIX DEPLOYMENT NOW** (Critical!)
+- **[Quick Start Guide](#-quick-start)** - Get running locally or access live demo
+- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment details
+- **[Backend Deploy](DEPLOY_BACKEND.md)** - Backend-specific deployment
+- **[API Documentation](https://mk1311-cis-audit-api.hf.space/api/docs)** - Live Interactive API docs
 - **[Project Structure](#-project-structure)** - Codebase organization
 - **[Scanning Workflow](#-scanning-workflow)** - How scans work
 - **[Security Features](#-security-features)** - Security implementation details
-- **[Validation Script](VALIDATE_DEPLOYMENT.bat)** - Pre-deployment checks
 
 ---
 
@@ -354,10 +372,11 @@ Built as a comprehensive full-stack cybersecurity portfolio project showcasing:
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/cis-audit-dashboard/issues)
-- **Documentation**: See `/docs` folder
-- **Quick Start**: Run `START_PROJECT.bat` or read `QUICK_FIX_PLAN.md`
+- **🔥 Critical Fix**: [IMMEDIATE_ACTIONS.md](IMMEDIATE_ACTIONS.md) - Fix production deployment
+- **Issues**: [GitHub Issues](https://github.com/sumit-prajapat/cis-audit-dashboard/issues)
+- **Live API**: https://mk1311-cis-audit-api.hf.space/api/docs
+- **Repository**: https://github.com/sumit-prajapat/cis-audit-dashboard
 
 ---
 
-**Status**: 🟢 Active Development | Last Updated: August 2026
+**Status**: 🟢 Production Deployed | Vercel + Hugging Face + Supabase | Last Updated: August 19, 2026

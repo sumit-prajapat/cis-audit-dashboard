@@ -20,7 +20,13 @@ export default function Login() {
       persistAuth(res.data)
       navigate('/dashboard', { replace: true })
     } catch (err) {
-      setError(extractApiErrorMessage(err) || 'Unable to sign in with those credentials')
+      console.error('Login error:', err)
+      const errorMsg = extractApiErrorMessage(err)
+      if (err.message === 'Network Error' || !err.response) {
+        setError('Cannot connect to server. Please check your internet connection or try again later.')
+      } else {
+        setError(errorMsg || 'Unable to sign in with those credentials')
+      }
     } finally {
       setLoading(false)
     }

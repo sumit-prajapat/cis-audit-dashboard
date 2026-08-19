@@ -1,6 +1,7 @@
 """Authentication routes for CIS Audit Dashboard."""
 from __future__ import annotations
 
+import logging
 import os
 import re
 from datetime import datetime, timedelta

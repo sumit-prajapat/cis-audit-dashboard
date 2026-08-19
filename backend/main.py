@@ -93,8 +93,12 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "fallback-secret-key-123"))
 
 # Add Trusted Host Middleware (Strict Host headers)
-if os.getenv("APP_ENV") != "test":
+# Allow all hosts in production since we're on Hugging Face Spaces
+if os.getenv("APP_ENV") == "development":
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
+elif os.getenv("APP_ENV") != "test":
+    # Production - allow Hugging Face hosts
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 # Add Security Headers Middleware
 app.add_middleware(SecurityHeadersMiddleware)

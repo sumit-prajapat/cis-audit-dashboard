@@ -22,7 +22,13 @@ export default function Register() {
       persistAuth(res.data)
       navigate('/onboarding', { replace: true })
     } catch (err) {
-      setError(extractApiErrorMessage(err) || 'Unable to create workspace')
+      console.error('Registration error:', err)
+      const errorMsg = extractApiErrorMessage(err)
+      if (err.message === 'Network Error' || !err.response) {
+        setError('Cannot connect to server. Please check your internet connection or try again later.')
+      } else {
+        setError(errorMsg || 'Unable to create workspace')
+      }
     } finally {
       setLoading(false)
     }
