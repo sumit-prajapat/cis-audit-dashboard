@@ -661,9 +661,16 @@ def request_password_reset(
 
     token = AuthService.create_password_reset_token(db, user)
     db.commit()
-    reset_url = f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/reset-password/{token}"
-    if not os.getenv("RESEND_API_KEY"):
-        return {"message": "Reset link generated", "reset_url": reset_url, "reset_token": token}
+    
+    # Send email
+    from services.email_service import send_password_reset_email
+    email_sent = send_password_reset_email(user.email, token, user.full_name)
+    
+    # Development fallback - return URL if email not configured
+    if not email_sent and not os.getenv("RESEND_API_KEY"):
+        reset_url = f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/reset-password?token={token}"
+        logging.info(f"Password reset URL (dev mode): {reset_url}")
+        return {"message": "Reset link generated (dev mode)", "reset_url": reset_url}
 
     _audit(db, action="auth.password_reset_requested", resource_type="user", org_id=user.org_id, user_id=user.id, request=request)
     db.commit()

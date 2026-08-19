@@ -410,37 +410,15 @@ def revoke_invite(
 
 # ── Background tasks ──────────────────────────────────────
 def _send_invite_email(to_email: str, org_name: str, invite_url: str, from_email: str):
-    """
-    Send invite email via configured email provider.
-    Implement using Resend, SendGrid, or similar.
-    For now: logs to console in dev mode.
-    """
-    RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
-
-    if not RESEND_API_KEY:
-        print(f"[INVITE EMAIL - dev mode]")
-        print(f"  To:      {to_email}")
-        print(f"  From:    {from_email}")
-        print(f"  Org:     {org_name}")
-        print(f"  URL:     {invite_url}")
-        return
-
-    try:
-        import resend
-        resend.api_key = RESEND_API_KEY
-        resend.Emails.send({
-            "from":    "CIS Audit <noreply@yourdomain.com>",
-            "to":      to_email,
-            "subject": f"You've been invited to join {org_name} on CIS Audit Dashboard",
-            "html":    f"""
-                <h2>You've been invited to {org_name}</h2>
-                <p>{from_email} has invited you to join <strong>{org_name}</strong> on CIS Audit Dashboard.</p>
-                <p>Click the link below to accept your invitation:</p>
-                <p><a href="{invite_url}" style="background:#3B82F6;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">
-                    Accept Invitation
-                </a></p>
-                <p style="color:#666;font-size:12px;">This invite expires in 72 hours. If you didn't expect this email, you can ignore it.</p>
-            """,
-        })
-    except Exception as e:
-        print(f"[EMAIL ERROR] Failed to send invite email: {e}")
+    """Send invite email via Resend"""
+    from services.email_service import send_team_invite_email
+    
+    # Extract token from URL
+    token = invite_url.split("/")[-1]
+    send_team_invite_email(
+        email=to_email,
+        token=token,
+        org_name=org_name,
+        invited_by=from_email,
+        role="team member"
+    )

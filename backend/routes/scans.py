@@ -125,8 +125,12 @@ def submit_scan(
 
     try:
         from services.notification_service import notify_scan_completion
-
-        notify_scan_completion(device.hostname, score, critical_findings_count, {})
+        from models import Organization
+        
+        org = db.query(Organization).filter(Organization.id == current_user.org_id).first()
+        org_metadata = org.settings if org and org.settings else {}
+        
+        notify_scan_completion(device.hostname, score, critical_findings_count, org_metadata)
     except Exception as exc:
         print(f"Failed to send notifications: {exc}")
 

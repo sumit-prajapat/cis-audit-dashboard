@@ -9,34 +9,108 @@ on:
 jobs:
   backend-test:
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: cistest
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: cisdb_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
+    
+    - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.11'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r backend/requirements.txt
-        pip install pytest flake8
+        pip install pytest flake8 bandit pytest-cov
+    
     - name: Lint with flake8
       run: |
         flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics
-    - name: Run tests
+    
+    - name: Security scan with bandit
       run: |
-        # Uncomment when tests are written
-        # pytest backend/
+        bandit -r backend/ -ll || true
+    
+    - name: Run tests
+      env:
+        APP_ENV: test
+        SECRET_KEY: test-secret-key-for-ci-only
+        DATABASE_URL: postgresql://cistest:testpass@localhost:5432/cisdb_test
+      run: |
+        cd backend && pytest tests/ -v --cov=. --cov-report=term
 
   frontend-build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
     - name: Install dependencies
-      run: cd frontend && npm install
+      run: cd frontend && npm ci
+    
     - name: Build
       run: cd frontend && npm run build
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/dist/
+  
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-build]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Test docker-compose config
+      run: docker-compose config
+    
+    - name: Build images
+      run: docker-compose build
+    
+    - name: Start services
+      run: |
+        docker-compose up -d
+        sleep 15
+    
+    - name: Health check
+      run: |
+        curl -f http://localhost:8000/health || exit 1
+        curl -f http://localhost:8000/health/ready || exit 1
+    
+    - name: Cleanup
+      run: docker-compose down
+

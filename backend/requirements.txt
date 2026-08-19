@@ -1,6 +1,7 @@
 fastapi>=0.115.0,<0.116.0
 uvicorn[standard]>=0.30.0,<0.31.0
 sqlalchemy>=2.0.30,<2.1.0
+alembic>=1.13.0,<2.0.0
 psycopg[binary]>=3.2.13,<4.0.0
 python-dotenv==1.0.0
 pydantic[email]>=2.10.0,<3.0.0
@@ -12,3 +13,6 @@ reportlab==4.0.7
 stripe==7.8.0
 resend==0.7.0
 itsdangerous==2.2.0
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0

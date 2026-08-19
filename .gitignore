@@ -1,6 +1,58 @@
+# Environment files
 .env
+*.env
+!.env.example
+
+# Python
 *.pyc
+*.pyo
+*.pyd
 __pycache__/
-scan_backup.json
+*.so
+*.egg
+*.egg-info/
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Node.js
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
 dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Agent backups
+scan_backup.json
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Alembic
+backend/alembic/versions/*.py
+!backend/alembic/versions/__init__.py
