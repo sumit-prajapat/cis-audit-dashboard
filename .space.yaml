@@ -1,0 +1,8 @@
+# Hugging Face Space Configuration
+sdk: docker
+app_port: 7860
+emoji: 🛡️
+title: CIS Audit API
+colorFrom: blue
+colorTo: green
+pinned: false
