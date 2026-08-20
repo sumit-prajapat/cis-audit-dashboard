@@ -1,64 +1,7 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/auth/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/orgs/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/billing/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/health(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/dist/$1"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/auth/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/orgs/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/billing/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/health",
-      "destination": "/api/index.py"
-    }
-  ]
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "framework": "vite",
+  "installCommand": "cd frontend && npm install"
 }
