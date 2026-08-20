@@ -33,8 +33,9 @@ router = APIRouter()
 
 SECRET_KEY = os.getenv("SECRET_KEY", "changeme-in-production-please")
 ALGORITHM = "HS256"
-SECURE_COOKIES = os.getenv("COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
-COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax")
+# For Vercel deployment on same domain, use standard cookie settings
+SECURE_COOKIES = os.getenv("COOKIE_SECURE", "true").lower() in {"1", "true", "yes"}
+COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax")  # "lax" for same-origin, "none" for cross-origin
 ACCESS_TOKEN_COOKIE = "access_token"
 REFRESH_TOKEN_COOKIE = "refresh_token"
 CSRF_COOKIE = "csrf_token"

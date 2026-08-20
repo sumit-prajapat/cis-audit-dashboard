@@ -3,9 +3,8 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // Debug logging
-if (!import.meta.env.VITE_API_URL) {
-  console.warn('⚠️ VITE_API_URL is not set. API requests may fail.')
-  console.warn('Expected: https://mk1311-cis-audit-api.hf.space')
+if (!API_BASE_URL) {
+  console.log('ℹ️ Using relative API URLs (backend on same domain)');
 }
 
 const apiClient = axios.create({

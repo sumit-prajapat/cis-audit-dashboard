@@ -58,27 +58,29 @@ def initialize_database():
 
 
 # ── CORS Configuration ───────────────────────────────────
-origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",") if origin.strip()]
+# For Vercel deployment: Allow same origin + explicit origins
+origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()]
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "")
-if FRONTEND_URL and FRONTEND_URL not in origins:
-    origins.append(FRONTEND_URL)
-
-# Add Vercel and Hugging Face URLs
-vercel_url = "https://cis-audit-dashboard.vercel.app"
-hf_url = "https://mk1311-cis-audit-api.hf.space"
-if vercel_url not in origins:
+# Add Vercel deployment URL
+vercel_url = os.getenv("FRONTEND_URL", "https://cis-audit-dashboard.vercel.app")
+if vercel_url and vercel_url not in origins:
     origins.append(vercel_url)
-if hf_url not in origins:
-    origins.append(hf_url)
+
+# For development
+if os.getenv("APP_ENV", "production") == "development":
+    origins.extend(["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"])
+
+# If no origins specified, allow all (for Vercel serverless)
+if not origins:
+    origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins     = origins,
     allow_credentials = True,
-    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers     = ["Authorization", "Content-Type", "X-CSRF-Token", "X-Requested-With"],
-    expose_headers    = ["Set-Cookie"],
+    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers     = ["*"],
+    expose_headers    = ["*"],
     max_age          = 3600,
 )
 
@@ -92,13 +94,10 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 # Add Session Middleware (required for some CSRF/auth flows)
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "fallback-secret-key-123"))
 
-# Add Trusted Host Middleware (Strict Host headers)
-# Allow all hosts in production since we're on Hugging Face Spaces
+# Add Trusted Host Middleware - Allow Vercel domains
 if os.getenv("APP_ENV") == "development":
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
-elif os.getenv("APP_ENV") != "test":
-    # Production - allow Hugging Face hosts
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+# In production (Vercel), don't add TrustedHostMiddleware - Vercel handles this
 
 # Add Security Headers Middleware
 app.add_middleware(SecurityHeadersMiddleware)

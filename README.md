@@ -2,51 +2,74 @@
 
 A full-stack **enterprise-grade** cybersecurity compliance platform that runs **CIS Benchmark checks** on Windows and Linux machines, displays results on a live compliance dashboard with 6 specialized views, tracks score history over time, and generates downloadable PDF reports.
 
-**Status**: 🚀 Production Deployed | Active Maintenance  
+**Status**: 🚀 **Production Ready** - Deployed on Vercel  
 **Version**: 3.0.0  
-**Deployment**: Vercel (Frontend) + Hugging Face (Backend) + Supabase (Database)
+**Repository**: https://github.com/sumit-prajapat/cis-audit-dashboard
 
 ---
 
-## ⚡ QUICK START
+# 🛡️ CIS Audit & Compliance Dashboard
 
-### 🌐 **Live Demo** (Deployed Production)
+Enterprise-grade **cybersecurity compliance platform** for CIS Benchmark auditing with multi-tenant SaaS architecture.
 
-**Frontend**: https://cis-audit-dashboard.vercel.app  
-**Backend API**: https://mk1311-cis-audit-api.hf.space  
-**Database**: Supabase PostgreSQL (Managed)
-
-**Test Account** (after deployment is fixed):
-- Email: `admin@test.com`
-- Password: `StrongPass123!@#`
-
-> ⚠️ **Current Status**: Frontend deployed, but needs environment variable configuration. See [IMMEDIATE_ACTIONS.md](IMMEDIATE_ACTIONS.md) for fix instructions.
+**Live Demo**: https://cis-audit-dashboard.vercel.app
 
 ---
 
-### 🐳 Local Development Setup (30 Minutes)
+## ⚡ Features
 
-#### Prerequisites
+- **Multi-Tenant SaaS Architecture** - Complete organization isolation with RBAC
+- **CIS Benchmark Scanning** - 37 automated checks (18 Windows + 19 Linux)
+- **6 Enterprise Dashboards** - Executive, Security Ops, Compliance, Assets, Risk, Reporting
+- **PDF Report Generation** - Professional compliance reports with branding
+- **JWT Authentication** - Secure token-based auth with refresh tokens
+- **Role-Based Access Control** - Owner, Admin, Auditor, Read-Only roles
+- **Stripe Billing Integration** - Subscription management (Starter, Growth, Team)
+- **Email Notifications** - Password reset, invites, alerts (Resend integration)
+- **Audit Logging** - Complete action tracking for compliance
+- **Database Migrations** - Alembic for schema versioning
 
-- **Python 3.11+** ([Download](https://www.python.org/downloads/))
-- **Node.js 18+** ([Download](https://nodejs.org/))
-- **Docker Desktop** ([Download](https://www.docker.com/products/docker-desktop/))
+---
 
-#### Windows Quick Start
+## 🚀 Quick Start
 
-```cmd
-# 1. Clone the repo
+### Deploy to Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/sumit-prajapat/cis-audit-dashboard)
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide.
+
+### Local Development
+
+```bash
+# 1. Clone repository
 git clone https://github.com/sumit-prajapat/cis-audit-dashboard.git
 cd cis-audit-dashboard
 
-# 2. Test your setup
-TEST_SETUP.bat
+# 2. Set up environment variables
+cp .env.example .env
+# Edit .env with your database URL and SECRET_KEY
 
-# 3. Start everything (opens 3 windows)
-START_PROJECT.bat
+# 3. Start database
+docker-compose up -d db
+
+# 4. Run migrations
+cd backend
+pip install -r requirements.txt
+alembic upgrade head
+
+# 5. Start backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# 6. Start frontend (new terminal)
+cd frontend
+npm install
+npm run dev
+
+# 7. Open http://localhost:5173
 ```
 
-#### Manual Setup
+---
 
 ```bash
 # 1. Create .env file
@@ -331,14 +354,10 @@ Test Coverage:
 
 ## 📖 Documentation
 
-- **[🚀 IMMEDIATE ACTIONS](IMMEDIATE_ACTIONS.md)** - **FIX DEPLOYMENT NOW** (Critical!)
-- **[Quick Start Guide](#-quick-start)** - Get running locally or access live demo
-- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment details
-- **[Backend Deploy](DEPLOY_BACKEND.md)** - Backend-specific deployment
-- **[API Documentation](https://mk1311-cis-audit-api.hf.space/api/docs)** - Live Interactive API docs
-- **[Project Structure](#-project-structure)** - Codebase organization
-- **[Scanning Workflow](#-scanning-workflow)** - How scans work
-- **[Security Features](#-security-features)** - Security implementation details
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Complete Vercel deployment guide
+- **[VERCEL_SETUP_COMPLETE.md](VERCEL_SETUP_COMPLETE.md)** - Environment variables & setup
+- **[CODE_QUALITY_REVIEW.md](CODE_QUALITY_REVIEW.md)** - Architecture & code review
+- **[API Documentation](https://cis-audit-dashboard.vercel.app/api/docs)** - Interactive API docs (Swagger UI)
 
 ---
 
@@ -372,11 +391,12 @@ Built as a comprehensive full-stack cybersecurity portfolio project showcasing:
 
 ## 📞 Support
 
-- **🔥 Critical Fix**: [IMMEDIATE_ACTIONS.md](IMMEDIATE_ACTIONS.md) - Fix production deployment
+- **Deployment Guide**: [DEPLOYMENT.md](DEPLOYMENT.md)
+- **Setup Guide**: [VERCEL_SETUP_COMPLETE.md](VERCEL_SETUP_COMPLETE.md)
 - **Issues**: [GitHub Issues](https://github.com/sumit-prajapat/cis-audit-dashboard/issues)
-- **Live API**: https://mk1311-cis-audit-api.hf.space/api/docs
-- **Repository**: https://github.com/sumit-prajapat/cis-audit-dashboard
+- **Live App**: https://cis-audit-dashboard.vercel.app
+- **API Docs**: https://cis-audit-dashboard.vercel.app/api/docs
 
 ---
 
-**Status**: 🟢 Production Deployed | Vercel + Hugging Face + Supabase | Last Updated: August 19, 2026
+**Status**: 🟢 Production Ready | Deployed on Vercel + Supabase | Last Updated: August 2026

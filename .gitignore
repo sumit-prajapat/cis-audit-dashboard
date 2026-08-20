@@ -1,58 +1,66 @@
-# Environment files
-.env
-*.env
-!.env.example
-
 # Python
-*.pyc
-*.pyo
-*.pyd
 __pycache__/
+*.py[cod]
+*$py.class
 *.so
-*.egg
-*.egg-info/
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.log
 .venv/
 venv/
 ENV/
 env/
 
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.db
+*.sqlite
+*.sqlite3
+test.db
 
-# Build outputs
-dist/
-build/
-*.log
-
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Agent backups
-scan_backup.json
-
-# OS
 .DS_Store
-Thumbs.db
-Desktop.ini
 
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
+# Environment
+.env
+.env.local
+.env.*.local
+*.pem
 
-# Alembic
-backend/alembic/versions/*.py
-!backend/alembic/versions/__init__.py
+# Node / Frontend
+node_modules/
+dist/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel
+
+# Temporary files
+*.tmp
+*.bak
+*.orig

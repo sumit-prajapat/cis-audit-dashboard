@@ -1,13 +1,15 @@
 import axios from 'axios'
 import { clearAuthStorage, normalizeApiError } from '../services/apiClient'
 
+// API Base URL - Use relative path when on same domain (Vercel deployment)
+// Or use environment variable for separate backend
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
-// Debug logging in development
-if (!import.meta.env.VITE_API_URL) {
-  console.warn('⚠️ VITE_API_URL is not set. API requests may fail.')
-  console.warn('Expected: https://mk1311-cis-audit-api.hf.space')
-  console.warn('Current BASE_URL:', BASE_URL || '(empty)')
+// Debug logging
+if (!BASE_URL) {
+  console.log('ℹ️ Using relative API URLs (backend on same domain)')
+} else {
+  console.log('ℹ️ Using API URL:', BASE_URL)
 }
 
 const AUTH_STORAGE_KEYS = ['access_token', 'token', 'refresh_token', 'csrf_token', 'user']
