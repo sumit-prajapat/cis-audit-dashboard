@@ -6,6 +6,7 @@ import Dashboard   from './pages/Dashboard'
 import Devices     from './pages/Devices'
 import Scans       from './pages/Scans'
 import ScanDetail  from './pages/ScanDetail'
+import QuickScan   from './pages/QuickScan'
 import Billing     from './pages/Billing'
 import Settings    from './pages/Settings'
 import SecurityOps from './pages/SecurityOps'
@@ -142,6 +143,7 @@ export default function App() {
         <Route path="/devices"    element={<ProtectedRoute><ProtectedLayout><AssetDashboard /></ProtectedLayout></ProtectedRoute>} />
         <Route path="/scans"      element={<ProtectedRoute><ProtectedLayout><Scans /></ProtectedLayout></ProtectedRoute>} />
         <Route path="/scans/:id"  element={<ProtectedRoute><ProtectedLayout><ScanDetail /></ProtectedLayout></ProtectedRoute>} />
+        <Route path="/quick-scan" element={<ProtectedRoute><ProtectedLayout><QuickScan /></ProtectedLayout></ProtectedRoute>} />
         <Route path="/risk"       element={<ProtectedRoute><ProtectedLayout><RiskDashboard /></ProtectedLayout></ProtectedRoute>} />
         <Route path="/reports"    element={<ProtectedRoute><ProtectedLayout><ReportingDashboard /></ProtectedLayout></ProtectedRoute>} />
         <Route path="/billing"    element={<ProtectedRoute><ProtectedLayout><Billing /></ProtectedLayout></ProtectedRoute>} />

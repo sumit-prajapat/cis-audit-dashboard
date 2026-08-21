@@ -37,14 +37,33 @@
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### 🎯 For End Users (Easiest!)
+
+**Just want to scan your computer?**
+
+1. **Register**: https://cis-audit-dashboard.vercel.app/register
+2. **Click "Quick Scan"** button in dashboard
+3. **Download launcher** for your OS (Windows/Linux)
+4. **Run the file** - Results appear automatically!
+
+✅ No Python installation  
+✅ No command line needed  
+✅ Works like any other app
+
+**See [QUICK_START.md](QUICK_START.md) for detailed instructions.**
+
+---
+
+### 🛠️ For Developers
+
+#### Prerequisites
 - Python 3.11+
 - Node.js 18+
 - PostgreSQL database
 - Stripe account (for billing)
 - Resend account (for emails)
 
-### 1. Clone Repository
+#### 1. Clone Repository
 ```bash
 git clone https://github.com/sumit-prajapat/cis-audit-dashboard.git
 cd cis-audit-dashboard
