@@ -1,0 +1,7 @@
+{
+  "version": "2.1.0",
+  "deployment": "quick-scan-ui-fix",
+  "timestamp": "2026-08-21T12:00:00Z",
+  "features": ["quick-scan-button", "quick-scan-page", "sidebar-quick-actions"],
+  "commit": "f1b2fd3"
+}
