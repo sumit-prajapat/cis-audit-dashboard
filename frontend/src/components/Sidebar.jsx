@@ -27,7 +27,7 @@ const NAV = [
   ]},
 ]
 
-// Version: 2.0.1 - Added Quick Actions section with Quick Scan
+// Version: 2.1.0 - Quick Actions with Quick Scan - Build: 2026-08-21-v5
 
 export const SIDEBAR_COMMANDS = NAV.flatMap(section =>
   section.items.map(item => ({ ...item, group: section.group, keywords: item.label }))
