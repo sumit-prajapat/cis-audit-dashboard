@@ -5,6 +5,7 @@ export default function QuickScan() {
   const [downloadStatus, setDownloadStatus] = useState(null);
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [token, setToken] = useState('');
+  const [showToken, setShowToken] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL || 'https://cis-audit-api.onrender.com';
 
   const handleDownloadLauncher = (platform) => {
@@ -31,17 +32,26 @@ export default function QuickScan() {
     
     setDownloadStatus(`✅ ${platform} launcher downloaded!`);
     
-    // Show token modal
+    // Show token both in modal AND alert
     setToken(userToken);
+    setShowToken(true);
     setShowTokenModal(true);
+    
+    // Also show browser alert as backup
+    setTimeout(() => {
+      alert(`Your Authentication Token:\n\n${userToken}\n\nCopy this token and use it with:\nset CIS_TOKEN=${userToken}`);
+    }, 500);
     
     // Clear status after 5 seconds
     setTimeout(() => setDownloadStatus(null), 5000);
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(token);
-    alert('Token copied to clipboard!');
+    navigator.clipboard.writeText(token).then(() => {
+      alert('✅ Token copied to clipboard!');
+    }).catch(() => {
+      alert('Please manually copy the token above');
+    });
   };
 
   return (
@@ -71,6 +81,44 @@ export default function QuickScan() {
               <CheckCircle className="w-5 h-5 flex-shrink-0" />
             )}
             <span>{downloadStatus}</span>
+          </div>
+        )}
+
+        {/* Token Display (shows after download) */}
+        {showToken && token && (
+          <div className="mb-6 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 border-2 border-emerald-500/30 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <CheckCircle className="w-6 h-6 text-emerald-400" />
+                  Your Authentication Token
+                </h3>
+                <p className="text-slate-300 text-sm mt-1">Copy this token to run the scanner</p>
+              </div>
+              <button
+                onClick={copyToClipboard}
+                className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copy Token
+              </button>
+            </div>
+            <div className="bg-slate-900 border border-emerald-500/20 rounded-lg p-4">
+              <code className="text-cyan-400 text-sm font-mono break-all block">
+                {token}
+              </code>
+            </div>
+            <div className="mt-4 bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+              <p className="text-white font-semibold mb-2">💡 How to use:</p>
+              <div className="space-y-1 text-sm text-slate-300 font-mono">
+                <p>1. Open Command Prompt as Administrator</p>
+                <p>2. cd Downloads</p>
+                <p className="text-cyan-400">3. set CIS_TOKEN=YOUR_TOKEN_ABOVE</p>
+                <p>4. cis-scanner-windows.exe</p>
+              </div>
+            </div>
           </div>
         )}
 
