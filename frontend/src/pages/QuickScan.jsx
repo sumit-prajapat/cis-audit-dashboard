@@ -3,21 +3,23 @@ import { Download, Play, CheckCircle, AlertCircle, Shield, Info } from 'lucide-r
 
 export default function QuickScan() {
   const [downloadStatus, setDownloadStatus] = useState(null);
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const [token, setToken] = useState('');
   const API_URL = import.meta.env.VITE_API_URL || 'https://cis-audit-api.onrender.com';
 
   const handleDownloadLauncher = (platform) => {
     setDownloadStatus(`Downloading ${platform} launcher...`);
     
     // Get access token from localStorage
-    const token = localStorage.getItem('access_token');
+    const userToken = localStorage.getItem('access_token');
     
-    if (!token) {
+    if (!userToken) {
       setDownloadStatus('Error: Not authenticated. Please login first.');
       return;
     }
     
     // Create download with embedded token
-    const downloadUrl = `${API_URL}/downloads/cis-scanner-${platform}${platform === 'windows' ? '.exe' : ''}?token=${token}`;
+    const downloadUrl = `${API_URL}/downloads/cis-scanner-${platform}${platform === 'windows' ? '.exe' : ''}?token=${userToken}`;
     
     // Trigger download
     const link = document.createElement('a');
@@ -27,10 +29,19 @@ export default function QuickScan() {
     link.click();
     document.body.removeChild(link);
     
-    setDownloadStatus(`✅ ${platform} launcher downloaded! Your authentication token: ${token.substring(0, 20)}...`);
+    setDownloadStatus(`✅ ${platform} launcher downloaded!`);
     
-    // Clear status after 30 seconds (give user time to copy token)
-    setTimeout(() => setDownloadStatus(null), 30000);
+    // Show token modal
+    setToken(userToken);
+    setShowTokenModal(true);
+    
+    // Clear status after 5 seconds
+    setTimeout(() => setDownloadStatus(null), 5000);
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(token);
+    alert('Token copied to clipboard!');
   };
 
   return (
@@ -319,6 +330,84 @@ export default function QuickScan() {
           </div>
         </div>
       </div>
+
+      {/* Token Modal */}
+      {showTokenModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowTokenModal(false)}>
+          <div className="bg-slate-800 border border-emerald-500/30 rounded-xl p-8 max-w-2xl w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Download Complete!</h2>
+                <p className="text-slate-400 text-sm">Copy your authentication token below</p>
+              </div>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 mb-6">
+              <p className="text-xs text-slate-400 mb-2">Your Authentication Token:</p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-cyan-400 text-sm font-mono break-all bg-slate-950 p-3 rounded border border-slate-700">
+                  {token}
+                </code>
+                <button
+                  onClick={copyToClipboard}
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
+              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                <Info className="w-5 h-5 text-blue-400" />
+                How to Use:
+              </h3>
+              <ol className="space-y-2 text-sm text-slate-300">
+                <li className="flex gap-2">
+                  <span className="text-blue-400 font-bold">1.</span>
+                  <span>Open <strong className="text-white">Command Prompt as Administrator</strong></span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-400 font-bold">2.</span>
+                  <span>Navigate to Downloads: <code className="text-cyan-400 bg-slate-900 px-2 py-0.5 rounded">cd Downloads</code></span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-400 font-bold">3.</span>
+                  <span>Set token: <code className="text-cyan-400 bg-slate-900 px-2 py-0.5 rounded">set CIS_TOKEN=PASTE_TOKEN_HERE</code></span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-400 font-bold">4.</span>
+                  <span>Run scanner: <code className="text-cyan-400 bg-slate-900 px-2 py-0.5 rounded">cis-scanner-windows.exe</code></span>
+                </li>
+              </ol>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowTokenModal(false)}
+                className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={copyToClipboard}
+                className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copy Token & Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
