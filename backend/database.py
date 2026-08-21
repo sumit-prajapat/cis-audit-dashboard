@@ -17,33 +17,53 @@ if not DATABASE_URL:
     logger.error("❌ DATABASE_URL environment variable not set!")
     raise ValueError("DATABASE_URL environment variable is required")
 
-# Log the connection attempt (hide password)
-safe_url = DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else DATABASE_URL
-logger.info(f"🔌 Connecting to database: ...@{safe_url}")
+# Log the connection attempt (hide password for security)
+try:
+    if '@' in DATABASE_URL:
+        parts = DATABASE_URL.split('@')
+        safe_url = f"...@{parts[1]}" if len(parts) > 1 else "..."
+    else:
+        safe_url = "..."
+    logger.info(f"🔌 Connecting to database: {safe_url}")
+except:
+    logger.info("🔌 Connecting to database")
 
-# Handle both postgresql:// and postgres:// schemes
+# Handle postgres:// vs postgresql:// prefix
+original_url = DATABASE_URL
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     logger.info("📝 Converted postgres:// to postgresql://")
 
-# Add psycopg driver if not present
-if DATABASE_URL.startswith("postgresql://") and "postgresql+psycopg" not in DATABASE_URL:
+# Ensure psycopg driver is specified for PostgreSQL
+if DATABASE_URL.startswith("postgresql://") and "+psycopg" not in DATABASE_URL:
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
-    logger.info("📝 Added psycopg driver to connection string")
+    logger.info("📝 Added psycopg driver")
 
-# Create engine with connection pooling and health checks
+# Create engine with robust settings for cloud databases
 try:
     engine = create_engine(
         DATABASE_URL,
-        pool_pre_ping=True,  # Test connections before using them
-        pool_size=5,
-        max_overflow=10,
-        pool_recycle=3600,  # Recycle connections after 1 hour
-        echo=False  # Set to True for SQL debugging
+        pool_pre_ping=True,  # Verify connections before using
+        pool_size=5,  # Connection pool size
+        max_overflow=10,  # Max overflow connections  
+        pool_recycle=300,  # Recycle connections every 5 minutes (important for Supabase)
+        pool_timeout=30,  # Wait up to 30 seconds for connection
+        connect_args={
+            "connect_timeout": 10,  # Connection timeout
+            "options": "-c statement_timeout=30000"  # 30 second query timeout
+        },
+        echo=False  # Set to True to debug SQL queries
     )
-    logger.info("✅ Database engine created successfully")
+    
+    # Test the connection immediately
+    with engine.connect() as conn:
+        conn.execute("SELECT 1")
+    
+    logger.info("✅ Database engine created and tested successfully")
+    
 except Exception as e:
-    logger.error(f"❌ Failed to create database engine: {e}")
+    logger.error(f"❌ Failed to create database engine: {str(e)}")
+    logger.error(f"   Connection string format: {safe_url}")
     raise
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

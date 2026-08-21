@@ -42,19 +42,22 @@ app = FastAPI(
 @app.on_event("startup")
 def initialize_database():
     """
-    Database initialization handled by Alembic migrations.
-    Run 'alembic upgrade head' to apply migrations.
-    
-    For development, we keep create_all() as a fallback, but in production
-    this should be removed and migrations should be run during deployment.
+    Database initialization - create tables if they don't exist.
+    This ensures the app works on first deployment without manual migration.
     """
-    if os.getenv("APP_ENV", "development") == "development":
-        # Development fallback - ensure tables exist
+    try:
+        # Always create tables if they don't exist (safe operation)
         Base.metadata.create_all(bind=engine)
-        logging.info("Development mode: Ensured database tables exist via create_all()")
-    else:
-        # Production: rely on Alembic migrations only
-        logging.info("Production mode: Use 'alembic upgrade head' to apply migrations")
+        logging.info("✅ Database tables created/verified successfully")
+        
+        # Test connection
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT 1"))
+            logging.info("✅ Database connection test successful")
+    except Exception as e:
+        logging.error(f"❌ Database initialization failed: {e}")
+        # Don't raise - let app start and show proper error messages
 
 
 # ── CORS Configuration ───────────────────────────────────
