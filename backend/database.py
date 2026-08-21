@@ -48,16 +48,13 @@ try:
         max_overflow=10,  # Max overflow connections  
         pool_recycle=300,  # Recycle connections every 5 minutes (important for Supabase)
         pool_timeout=30,  # Wait up to 30 seconds for connection
-        connect_args={
-            "connect_timeout": 10,  # Connection timeout
-            "options": "-c statement_timeout=30000"  # 30 second query timeout
-        },
         echo=False  # Set to True to debug SQL queries
     )
     
     # Test the connection immediately
+    from sqlalchemy import text
     with engine.connect() as conn:
-        conn.execute("SELECT 1")
+        conn.execute(text("SELECT 1"))
     
     logger.info("✅ Database engine created and tested successfully")
     

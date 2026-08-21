@@ -53,10 +53,11 @@ def initialize_database():
         # Test connection
         from sqlalchemy import text
         with engine.connect() as conn:
-            result = conn.execute(text("SELECT 1"))
+            conn.execute(text("SELECT 1"))
             logging.info("✅ Database connection test successful")
     except Exception as e:
         logging.error(f"❌ Database initialization failed: {e}")
+        logging.error(f"   App will start but database operations will fail")
         # Don't raise - let app start and show proper error messages
 
 
