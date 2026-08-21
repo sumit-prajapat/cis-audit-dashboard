@@ -7,6 +7,9 @@ import {
 } from 'lucide-react'
 
 const NAV = [
+  { group: 'Quick Actions', items: [
+    { to: '/quick-scan', icon: Zap, label: 'Quick Scan' },
+  ]},
   { group: 'Command', items: [
     { to: '/dashboard', icon: Gauge, label: 'Executive' },
     { to: '/operations', icon: Activity, label: 'Security Ops' },
@@ -64,23 +67,6 @@ export default function Sidebar() {
           <div className="text-sm text-slate-100 truncate mt-1">{user.org_name || 'Default organization'}</div>
           <div className="mt-2 inline-flex rounded border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider text-cyan-300">{planLabel}</div>
         </div>
-      </div>
-
-      {/* Quick Scan Button */}
-      <div className="px-4 mb-4">
-        <NavLink
-          to="/quick-scan"
-          className={({ isActive }) =>
-            `flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg font-medium text-sm transition-all ${
-              isActive
-                ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25'
-                : 'bg-gradient-to-r from-emerald-400/10 to-cyan-400/10 text-emerald-300 hover:from-emerald-400/20 hover:to-cyan-400/20 border border-emerald-400/20'
-            }`
-          }
-        >
-          <Zap size={18} />
-          Quick Scan
-        </NavLink>
       </div>
 
       <nav className="flex-1 px-3 space-y-5 overflow-y-auto">
