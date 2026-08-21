@@ -8,6 +8,8 @@ build/
 develop-eggs/
 dist/
 downloads/
+# Allow backend downloads folder for launcher executables
+!backend/downloads/
 eggs/
 .eggs/
 lib/
