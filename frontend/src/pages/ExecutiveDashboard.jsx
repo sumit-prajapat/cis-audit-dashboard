@@ -2,10 +2,12 @@
  * ExecutiveDashboard.jsx - C-Level security posture dashboard
  */
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts';
+import { Zap } from 'lucide-react';
 import Card from '../components/common/Card';
 import LoadingSkeleton from '../components/common/LoadingSkeleton';
 import { useTheme } from '../contexts/ThemeContext';
@@ -13,6 +15,7 @@ import { scanService, deviceService } from '../services';
 import { readStoredUser } from '../api';
 
 const ExecutiveDashboard = ({ orgId }) => {
+  const navigate = useNavigate();
   const currentUser = readStoredUser()
   const resolvedOrgId = orgId || currentUser.org_id || currentUser.orgId
   const { colors } = useTheme();
@@ -70,6 +73,28 @@ const ExecutiveDashboard = ({ orgId }) => {
 
   return (
     <div className="space-y-6 p-6">
+      {/* Quick Scan Button - Prominent */}
+      <div className="bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 border border-emerald-500/20 rounded-xl p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <Zap className="w-6 h-6 text-emerald-400" />
+              Ready to Scan Your Systems?
+            </h2>
+            <p className="text-slate-300">
+              Download our one-click scanner for Windows or Linux. No Python, no command line - just run the file and see results here!
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/quick-scan')}
+            className="ml-4 px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-bold rounded-lg shadow-lg shadow-emerald-500/25 transition-all transform hover:scale-105 flex items-center gap-2 whitespace-nowrap"
+          >
+            <Zap className="w-5 h-5" />
+            Quick Scan
+          </button>
+        </div>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
