@@ -27,10 +27,10 @@ export default function QuickScan() {
     link.click();
     document.body.removeChild(link);
     
-    setDownloadStatus(`✅ ${platform} launcher downloaded! Run it to scan.`);
+    setDownloadStatus(`✅ ${platform} launcher downloaded! Your authentication token: ${token.substring(0, 20)}...`);
     
-    // Clear status after 5 seconds
-    setTimeout(() => setDownloadStatus(null), 5000);
+    // Clear status after 30 seconds (give user time to copy token)
+    setTimeout(() => setDownloadStatus(null), 30000);
   };
 
   return (
@@ -212,15 +212,20 @@ export default function QuickScan() {
               <li className="flex gap-3">
                 <span className="text-emerald-400 font-bold">2.</span>
                 <div>
-                  <p className="font-medium text-white">Run as Administrator</p>
-                  <p className="text-slate-400">Right-click → "Run as administrator"</p>
+                  <p className="font-medium text-white">Open Command Prompt as Administrator</p>
+                  <p className="text-slate-400">Press Win+X, select "Terminal (Admin)" or "Command Prompt (Admin)"</p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="text-emerald-400 font-bold">3.</span>
                 <div>
-                  <p className="font-medium text-white">Allow Defender</p>
-                  <p className="text-slate-400">Windows Defender may ask for confirmation</p>
+                  <p className="font-medium text-white">Run with Token</p>
+                  <p className="text-slate-400 font-mono text-xs bg-slate-900 p-2 rounded mt-1">
+                    cd Downloads<br/>
+                    set CIS_TOKEN={localStorage.getItem('access_token') || 'YOUR_TOKEN'}<br/>
+                    cis-scanner-windows.exe
+                  </p>
+                  <p className="text-yellow-400 text-xs mt-2">💡 Copy your token from above when you download</p>
                 </div>
               </li>
               <li className="flex gap-3">
@@ -234,7 +239,7 @@ export default function QuickScan() {
                 <span className="text-emerald-400 font-bold">5.</span>
                 <div>
                   <p className="font-medium text-white">View Results</p>
-                  <p className="text-slate-400">Dashboard opens automatically</p>
+                  <p className="text-slate-400">Refresh this page to see results</p>
                 </div>
               </li>
             </ol>
