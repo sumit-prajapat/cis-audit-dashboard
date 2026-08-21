@@ -1,402 +1,352 @@
-# 🛡️ CIS Audit & Compliance Dashboard
+# 🛡️ CIS Audit Dashboard
 
-A full-stack **enterprise-grade** cybersecurity compliance platform that runs **CIS Benchmark checks** on Windows and Linux machines, displays results on a live compliance dashboard with 6 specialized views, tracks score history over time, and generates downloadable PDF reports.
+**Enterprise-grade security compliance auditing platform** for Windows and Linux systems based on CIS Benchmarks.
 
-**Status**: 🚀 **Production Ready** - Deployed on Vercel  
-**Version**: 3.0.0  
-**Repository**: https://github.com/sumit-prajapat/cis-audit-dashboard
-
----
-
-# 🛡️ CIS Audit & Compliance Dashboard
-
-Enterprise-grade **cybersecurity compliance platform** for CIS Benchmark auditing with multi-tenant SaaS architecture.
-
-**Live Demo**: https://cis-audit-dashboard.vercel.app
+[![Deploy Status](https://img.shields.io/badge/Status-Production%20Ready-success)](https://cis-audit-dashboard.vercel.app)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
-## ⚡ Features
+## 🌟 Features
 
-- **Multi-Tenant SaaS Architecture** - Complete organization isolation with RBAC
-- **CIS Benchmark Scanning** - 37 automated checks (18 Windows + 19 Linux)
-- **6 Enterprise Dashboards** - Executive, Security Ops, Compliance, Assets, Risk, Reporting
-- **PDF Report Generation** - Professional compliance reports with branding
-- **JWT Authentication** - Secure token-based auth with refresh tokens
-- **Role-Based Access Control** - Owner, Admin, Auditor, Read-Only roles
-- **Stripe Billing Integration** - Subscription management (Starter, Growth, Team)
-- **Email Notifications** - Password reset, invites, alerts (Resend integration)
-- **Audit Logging** - Complete action tracking for compliance
-- **Database Migrations** - Alembic for schema versioning
+### 🔐 Security & Compliance
+- **CIS Benchmark Auditing** - Windows & Linux system compliance checks
+- **Multi-Tenant SaaS** - Organization-based access control with RBAC
+- **Audit Logging** - Complete trail of all system activities
+- **Automated Scans** - Schedule and run compliance checks
+
+### 📊 Dashboard & Reporting
+- **Real-time Dashboard** - Live compliance status and metrics
+- **PDF Reports** - Professional audit reports with evidence
+- **Historical Tracking** - Compliance trends over time
+- **Device Management** - Centralized asset inventory
+
+### 👥 Team Collaboration
+- **Organization Management** - Multi-user workspace support
+- **Role-Based Access** - Owner, Admin, Member, Read-only roles
+- **Team Invitations** - Invite members via email
+- **Activity Monitoring** - Track team member actions
+
+### 💳 Subscription & Billing
+- **Stripe Integration** - Secure payment processing
+- **Multiple Plans** - Free, Professional, Enterprise tiers
+- **Usage Tracking** - Monitor device limits and scans
+- **Automatic Billing** - Recurring subscriptions
 
 ---
 
 ## 🚀 Quick Start
 
-### Deploy to Vercel (Recommended)
+### Prerequisites
+- Python 3.11+
+- Node.js 18+
+- PostgreSQL database
+- Stripe account (for billing)
+- Resend account (for emails)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/sumit-prajapat/cis-audit-dashboard)
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide.
-
-### Local Development
-
+### 1. Clone Repository
 ```bash
-# 1. Clone repository
 git clone https://github.com/sumit-prajapat/cis-audit-dashboard.git
 cd cis-audit-dashboard
+```
 
-# 2. Set up environment variables
-cp .env.example .env
-# Edit .env with your database URL and SECRET_KEY
-
-# 3. Start database
-docker-compose up -d db
-
-# 4. Run migrations
+### 2. Backend Setup
+```bash
 cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+# Copy environment template
+cp .env.example .env
+# Edit .env with your credentials
+
+# Run database migrations
 alembic upgrade head
 
-# 5. Start backend
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Start backend server
+uvicorn main:app --reload
+```
 
-# 6. Start frontend (new terminal)
+### 3. Frontend Setup
+```bash
 cd frontend
 npm install
+
+# Copy environment template
+cp .env .env.local
+# Edit .env.local with your API URL
+
+# Start frontend dev server
 npm run dev
-
-# 7. Open http://localhost:5173
 ```
+
+### 4. Access Application
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/api/docs
 
 ---
 
-```bash
-# 1. Create .env file
-copy .env.example .env
-# Edit .env and change SECRET_KEY!
-
-# 2. Start database
-docker-compose up -d db
-
-# 3. Apply database migrations
-cd backend
-pip install -r requirements.txt
-python -m alembic upgrade head
-
-# 4. Start backend (Terminal 1)
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-
-# 5. Start frontend (Terminal 2)
-cd frontend
-npm install
-npm run dev
-
-# 5. Visit http://localhost:5173
-```
-
-### First Login
-
-1. **Register**: http://localhost:5173/register
-   - Email: `admin@test.com`
-   - Password: `StrongPass123!@#` (min 12 chars, mixed case, numbers, symbols)
-   - Full Name: `Admin User`
-   - Organization: `My Company`
-
-2. **Run a Scan**:
-```bash
-cd agent
-pip install -r requirements.txt
-python scanner.py --email admin@test.com --password "StrongPass123!@#"
-```
-
-3. **View Results**: Dashboard, Devices, Scans, Reports
-
----
-
-## 🚀 Features
-
-### ✅ Currently Working
-
-- **Multi-Tenant SaaS**: Complete organization isolation with RBAC
-- **CIS Benchmark Checks**: 18 Windows + 19 Linux controls
-- **6 Enterprise Dashboards**:
-  - 📊 Executive Dashboard (C-level metrics)
-  - 🔒 Security Operations (SOC view)
-  - ✅ Compliance Dashboard (Framework tracking)
-  - 💻 Asset Dashboard (Device inventory)
-  - ⚠️ Risk Dashboard (Risk matrix)
-  - 📄 Reporting Dashboard (PDF generation)
-- **JWT Authentication**: Secure login with refresh tokens & session management
-- **RBAC**: Owner, Admin, Viewer roles with permission system
-- **PDF Reports**: Branded compliance reports with ReportLab
-- **Stripe Billing**: Subscription management (Starter, Growth, Team plans)
-- **Email Service**: Password reset, invites, notifications (Resend integration)
-- **Database Migrations**: Alembic for schema versioning
-- **Health Checks**: Kubernetes-ready liveness & readiness probes
-- **Security Middleware**: Rate limiting, CSRF, security headers
-- **Compliance Mapping**: NIST CSF, ISO 27001, PCI DSS, SOC 2
-- **Notification System**: Slack & Teams webhook integration
-- **Audit Logging**: Complete action tracking
-- **Real-time Charts**: Recharts visualization
-- **Responsive Design**: Mobile-friendly UI
-- **Docker Support**: Full containerization with docker-compose
-- **Test Suite**: 19 passing tests (health, models, services)
-- **CI/CD Pipeline**: GitHub Actions with automated testing
-
-### 🚧 Future Enhancements
-
-- Frontend testing framework (Jest/Vitest)
-- Enhanced test coverage for authentication flows
-- 2FA authentication
-- Scheduled scanning automation
-- Advanced compliance framework mapping
-- Real-time websocket notifications
-- Third-party integrations (Jira, Splunk, ServiceNow)
-- Mobile app (React Native)
-- Advanced analytics and dashboards
-
----
-
-## 📁 Project Structure
+## 📦 Project Structure
 
 ```
 cis-audit-dashboard/
-├── agent/                  # Python scanner (runs on target machines)
-│   ├── scanner.py          # Main entry point
-│   ├── reporter.py         # API communication
-│   └── checks/             # OS-specific CIS checks
-│       ├── windows.py      # 18 Windows checks
-│       └── linux.py        # 19 Linux checks
+├── backend/               # FastAPI backend application
+│   ├── alembic/          # Database migrations
+│   ├── middleware/       # Security & auth middlewares
+│   ├── models.py         # SQLAlchemy database models
+│   ├── routes/           # API route handlers
+│   ├── services/         # Business logic layer
+│   ├── database.py       # Database configuration
+│   ├── main.py           # FastAPI app entry point
+│   └── requirements.txt  # Python dependencies
 │
-├── backend/                # FastAPI REST API
-│   ├── main.py             # App entry point
-│   ├── models.py           # SQLAlchemy ORM (14 tables)
-│   ├── schemas.py          # Pydantic validation
-│   ├── routes/             # API endpoints
-│   │   ├── auth.py         # Authentication
-│   │   ├── scans.py        # Scan management
-│   │   ├── reports.py      # PDF generation
-│   │   ├── billing.py      # Stripe integration
-│   │   └── orgs.py         # Organization management
-│   ├── services/           # Business logic
-│   │   ├── auth_service.py
-│   │   ├── scan_service.py
-│   │   └── device_service.py
-│   ├── middleware/         # Security middleware
-│   │   ├── auth_middleware.py
-│   │   ├── rate_limiter.py
-│   │   └── security_headers.py
-│   └── pdf_generator.py   # ReportLab PDF generation
-│
-├── frontend/               # React SPA
+├── frontend/             # React + Vite frontend
 │   ├── src/
-│   │   ├── pages/          # Dashboard pages
-│   │   │   ├── ExecutiveDashboard.jsx
-│   │   │   ├── SecurityOpsDashboard.jsx
-│   │   │   ├── ComplianceDashboard.jsx
-│   │   │   ├── AssetDashboard.jsx
-│   │   │   ├── RiskDashboard.jsx
-│   │   │   └── ReportingDashboard.jsx
-│   │   ├── components/     # Reusable components
-│   │   ├── services/       # API client & business logic
-│   │   ├── config/         # Theme & constants
-│   │   └── contexts/       # React contexts
-│   └── package.json
+│   │   ├── components/  # React components
+│   │   ├── pages/       # Page components
+│   │   ├── services/    # API client services
+│   │   └── App.jsx      # Main app component
+│   ├── package.json     # Node dependencies
+│   └── vite.config.js   # Vite configuration
 │
-├── docker-compose.yml      # PostgreSQL + Services
-├── .env.example            # Environment template
-├── START_PROJECT.bat       # Quick start script (Windows)
-└── TEST_SETUP.bat          # Verify prerequisites
+├── agent/                # CIS compliance scanning agent
+│   ├── checks/          # Platform-specific checks
+│   ├── scanner.py       # Main scanner
+│   └── reporter.py      # Results reporter
+│
+├── docs/                 # Documentation
+│   └── deployment/      # Deployment guides
+│
+├── render.yaml          # Render.com deployment config
+├── vercel.json          # Vercel deployment config
+└── README.md            # This file
 ```
 
 ---
 
-## 🔍 Scanning Workflow
+## 🌐 Production Deployment
 
-```
-1. Agent Execution on Target Machine
-   ↓
-2. OS Detection (Windows/Linux)
-   ↓
-3. Run CIS Checks (18-19 controls)
-   ↓
-4. Calculate Compliance Score
-   ↓
-5. POST Results to API (JWT authenticated)
-   ↓
-6. Backend: Create/Update Device & Scan Records
-   ↓
-7. Dashboard: Real-time Metrics Update
-   ↓
-8. Generate PDF Report (on-demand)
-```
+### Current Production Setup
 
----
+**Frontend**: Vercel  
+**Backend**: Render.com  
+**Database**: Render PostgreSQL  
 
-## 🔐 Security Features
+**Live URLs**:
+- Frontend: https://cis-audit-dashboard.vercel.app
+- Backend API: https://cis-audit-api.onrender.com
 
-- **JWT Authentication**: Access + refresh token rotation
-- **Bcrypt Password Hashing**: Industry-standard
-- **RBAC**: Role-based access control
-- **Multi-Tenancy**: Organization-based data isolation
-- **CSRF Protection**: Token-based validation
-- **Rate Limiting**: 5000 req/hour per org
-- **Security Headers**: HSTS, CSP, X-Frame-Options
-- **Account Lockout**: 5 failed attempts = 15min lockout
-- **Audit Logging**: All actions tracked
-- **Session Management**: Multi-session support with revocation
+### Deploy Your Own
 
----
+#### 1. Deploy Backend to Render
 
-## 🎨 Tech Stack
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com)
 
-**Backend**:
-- FastAPI 0.115+ (async Python web framework)
-- PostgreSQL 15 + SQLAlchemy 2.0+ (ORM)
-- JWT (python-jose) + Bcrypt
-- Pydantic v2 (validation)
-- ReportLab (PDF generation)
-- Stripe SDK (billing)
-- Resend (email)
+1. Create account on [Render.com](https://render.com)
+2. Click "New +" → "Web Service"
+3. Connect your GitHub repository
+4. Configure:
+   - **Root Directory**: `backend`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+5. Add environment variables (see `.env.example`)
+6. Deploy!
 
-**Frontend**:
-- React 18 + Vite 5
-- TailwindCSS 3.4 + Custom theme system
-- Recharts 2.12 (charts)
-- Axios 1.6 (HTTP client)
-- React Router 6.22
-- Lucide React (icons)
+#### 2. Deploy Frontend to Vercel
 
-**Infrastructure**:
-- Docker + Docker Compose
-- PostgreSQL 15 with persistent volumes
-- Uvicorn (ASGI server)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+1. Create account on [Vercel](https://vercel.com)
+2. Import your GitHub repository
+3. Configure:
+   - **Framework**: Vite
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. Add environment variable:
+   - `VITE_API_URL`: Your Render backend URL
+5. Deploy!
+
+#### 3. Create Database
+
+On Render:
+1. Click "New +" → "PostgreSQL"
+2. Create free database
+3. Copy Internal Database URL
+4. Add to backend environment as `DATABASE_URL`
+
+**📚 Detailed deployment guide**: See `docs/deployment/`
 
 ---
 
-## 📊 API Endpoints
+## 🔧 Configuration
 
-### Authentication
-- `POST /auth/register` - Create account
-- `POST /auth/login` - Login
-- `POST /auth/refresh` - Refresh access token
-- `POST /auth/logout` - Logout
-- `GET /auth/me` - Get current user
-- `GET /auth/sessions` - List sessions
-- `POST /auth/sessions/{id}/revoke` - Revoke session
-- `POST /auth/logout-all` - Logout all sessions
-- `POST /auth/password-reset/request` - Request password reset
-- `POST /auth/password-reset/confirm` - Confirm password reset
-
-### Scans
-- `POST /api/scans` - Submit scan results
-- `GET /api/scans` - List scans
-- `GET /api/scans/{id}` - Get scan details
-- `GET /api/scans/compliance-metrics` - Org compliance metrics
-
-### Devices
-- `GET /api/devices` - List devices
-- `GET /api/devices/{id}` - Get device details
-- `GET /api/devices/{id}/scans` - Get device scan history
-- `GET /api/devices/{id}/compliance-trend` - Compliance trend
-- `GET /api/devices/stats` - Device statistics
-
-### Reports
-- `GET /api/reports` - List reports
-- `POST /api/reports` - Create report
-- `GET /api/reports/{scan_id}/pdf` - Download PDF
-- `GET /api/reports/archive/{report_id}/pdf` - Download archived PDF
-
-### Organizations
-- `GET /orgs/me` - Get organization
-- `PUT /orgs/me` - Update organization
-- `POST /orgs/invite` - Invite member
-- `POST /orgs/invite/{token}/accept` - Accept invite
-- `DELETE /orgs/invite/{id}` - Revoke invite
-- `DELETE /orgs/members/{id}` - Remove member
-- `PUT /orgs/members/{id}/role` - Change member role
-
-### Billing
-- `GET /billing/status` - Get billing status
-- `POST /billing/checkout` - Create checkout session
-- `POST /billing/portal` - Create customer portal
-- `POST /billing/webhook` - Stripe webhook
-
----
-
-## 🧪 Running Tests
+### Backend Environment Variables
 
 ```bash
-# Backend tests
+# Database
+DATABASE_URL=postgresql://user:password@host:5432/database
+
+# Security
+SECRET_KEY=your-secret-key-here
+APP_ENV=production
+
+# Frontend URL
+FRONTEND_URL=https://your-frontend.vercel.app
+ALLOWED_ORIGINS=https://your-frontend.vercel.app
+
+# Cookies
+COOKIE_SECURE=true
+COOKIE_SAMESITE=lax
+
+# Email (Resend)
+RESEND_API_KEY=your-resend-api-key
+
+# Payments (Stripe)
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+```
+
+### Frontend Environment Variables
+
+```bash
+# Backend API URL
+VITE_API_URL=https://your-backend.onrender.com
+```
+
+---
+
+## 🛠️ Technology Stack
+
+### Backend
+- **Framework**: FastAPI 0.115+
+- **Database**: PostgreSQL with SQLAlchemy 2.0
+- **Authentication**: JWT tokens with refresh token rotation
+- **Migrations**: Alembic
+- **PDF Generation**: ReportLab
+- **Payments**: Stripe
+- **Email**: Resend
+- **Security**: CORS, CSRF, Rate limiting, bcrypt
+
+### Frontend
+- **Framework**: React 18
+- **Build Tool**: Vite 5
+- **UI Library**: Ant Design 5
+- **HTTP Client**: Axios
+- **Routing**: React Router v6
+- **Charts**: Recharts
+
+### DevOps
+- **Backend Hosting**: Render.com
+- **Frontend Hosting**: Vercel
+- **Database**: Render PostgreSQL
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Render logs, Vercel Analytics
+
+---
+
+## 📖 API Documentation
+
+Interactive API documentation available at:
+- **Swagger UI**: `/api/docs`
+- **ReDoc**: `/api/redoc`
+
+### Key Endpoints
+
+```
+Authentication
+POST   /auth/register           Register new user
+POST   /auth/login              Login
+POST   /auth/refresh            Refresh access token
+GET    /auth/me                 Get current user
+
+Scans
+GET    /api/scans               List all scans
+POST   /api/scans               Create new scan
+GET    /api/scans/{id}          Get scan details
+
+Reports
+GET    /api/reports             List reports
+GET    /api/reports/{id}/pdf    Download PDF report
+
+Organizations
+GET    /orgs/me                 Get organization
+POST   /orgs/invite             Invite team member
+
+Billing
+GET    /billing/status          Subscription status
+POST   /billing/checkout        Create checkout session
+```
+
+---
+
+## 🧪 Testing
+
+### Backend Tests
+```bash
 cd backend
-python -m pytest tests/ -v
+pytest
+```
 
-# Run with coverage
-python -m pytest tests/ --cov=. --cov-report=term
-
-# Run specific test file
-python -m pytest tests/test_services.py -v
-
-# Frontend tests (coming soon)
+### Frontend Tests
+```bash
 cd frontend
 npm test
 ```
-
-**Current Test Status**: ✅ 19 passing, 1 skipped (bcrypt environment issue)
-
-Test Coverage:
-- Health checks (3 tests)
-- Database models (6 tests)
-- Security services (10 tests)
-
----
-
-## 📖 Documentation
-
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Complete Vercel deployment guide
-- **[VERCEL_SETUP_COMPLETE.md](VERCEL_SETUP_COMPLETE.md)** - Environment variables & setup
-- **[CODE_QUALITY_REVIEW.md](CODE_QUALITY_REVIEW.md)** - Architecture & code review
-- **[API Documentation](https://cis-audit-dashboard.vercel.app/api/docs)** - Interactive API docs (Swagger UI)
 
 ---
 
 ## 🤝 Contributing
 
-This is a portfolio/resume project. Contributions welcome!
+Contributions are welcome! Please:
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
-## 📝 License
+## 📄 License
 
-MIT License - See LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 👨‍💻 Author
+## 🙏 Acknowledgments
 
-Built as a comprehensive full-stack cybersecurity portfolio project showcasing:
-- Enterprise SaaS architecture
-- Security best practices
-- Modern web development
-- DevOps practices
-- Cloud infrastructure
+- **CIS Benchmarks** - Security configuration guidelines
+- **FastAPI** - Modern Python web framework
+- **React** - UI library
+- **Ant Design** - Component library
+- **Render & Vercel** - Hosting platforms
 
 ---
 
 ## 📞 Support
 
-- **Deployment Guide**: [DEPLOYMENT.md](DEPLOYMENT.md)
-- **Setup Guide**: [VERCEL_SETUP_COMPLETE.md](VERCEL_SETUP_COMPLETE.md)
+- **Documentation**: `/docs`
 - **Issues**: [GitHub Issues](https://github.com/sumit-prajapat/cis-audit-dashboard/issues)
-- **Live App**: https://cis-audit-dashboard.vercel.app
-- **API Docs**: https://cis-audit-dashboard.vercel.app/api/docs
+- **Email**: support@example.com
 
 ---
 
-**Status**: 🟢 Production Ready | Deployed on Vercel + Supabase | Last Updated: August 2026
+## 🎯 Roadmap
+
+- [ ] Multi-cloud support (AWS, Azure, GCP)
+- [ ] API for third-party integrations
+- [ ] Mobile app (iOS & Android)
+- [ ] Advanced analytics & ML predictions
+- [ ] Compliance frameworks (HIPAA, SOC 2, ISO 27001)
+- [ ] Automated remediation suggestions
+- [ ] Real-time notifications
+- [ ] SSO integration (SAML, OAuth)
+
+---
+
+**Built with ❤️ for security teams worldwide**
+
+**[Live Demo](https://cis-audit-dashboard.vercel.app)** | **[Documentation](docs/)** | **[Report Bug](issues)** | **[Request Feature](issues)**
