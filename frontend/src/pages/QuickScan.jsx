@@ -37,10 +37,13 @@ export default function QuickScan() {
     setShowToken(true);
     setShowTokenModal(true);
     
-    // Also show browser alert as backup
+    // Show browser alert as backup (after a delay so modal shows first)
     setTimeout(() => {
-      alert(`Your Authentication Token:\n\n${userToken}\n\nCopy this token and use it with:\nset CIS_TOKEN=${userToken}`);
-    }, 500);
+      alert(`✅ Token copied to clipboard!\n\nUse this command:\n\nset CIS_TOKEN=${userToken}\n\nThen run: cis-scanner-windows.exe`);
+    }, 1500);
+    
+    // Copy to clipboard immediately
+    navigator.clipboard.writeText(userToken);
     
     // Clear status after 5 seconds
     setTimeout(() => setDownloadStatus(null), 5000);
