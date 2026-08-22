@@ -14,6 +14,9 @@ const ReportingDashboard = ({ orgId }) => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showNewReportForm, setShowNewReportForm] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL || 'https://cis-audit-api.onrender.com';
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -46,6 +49,43 @@ const ReportingDashboard = ({ orgId }) => {
       alert('Report generation started');
     } catch (error) {
       console.error('Error generating report:', error);
+    }
+  };
+
+  const handleExport = async (format) => {
+    setExportLoading(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const endpoint = format === 'csv' ? '/api/exports/scans/csv' : '/api/exports/scans/excel';
+      
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      // Create download link
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `scans_export_${new Date().toISOString().split('T')[0]}.${format === 'csv' ? 'csv' : 'xlsx'}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      alert(`✅ ${format.toUpperCase()} exported successfully!`);
+    } catch (error) {
+      console.error('Export error:', error);
+      alert(`❌ Export failed: ${error.message}`);
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -176,9 +216,29 @@ const ReportingDashboard = ({ orgId }) => {
       <Card>
         <h3 className="text-lg font-semibold text-gray-100 mb-4">Bulk Export</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Button variant="outline" className="w-full">📋 Export as CSV</Button>
-          <Button variant="outline" className="w-full">📊 Export as Excel</Button>
-          <Button variant="outline" className="w-full">📄 Export as PDF</Button>
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={() => handleExport('csv')}
+            disabled={exportLoading}
+          >
+            {exportLoading ? '⏳ Exporting...' : '📋 Export as CSV'}
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full"
+            onClick={() => handleExport('excel')}
+            disabled={exportLoading}
+          >
+            {exportLoading ? '⏳ Exporting...' : '📊 Export as Excel'}
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full"
+            onClick={() => alert('PDF export of all data coming soon!')}
+          >
+            📄 Export as PDF
+          </Button>
         </div>
       </Card>
     </div>
