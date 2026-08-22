@@ -77,7 +77,7 @@ export default function QuickScan() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
             <Shield className="w-10 h-10 text-emerald-400" />
-            Quick Scan v2.1.3
+            Quick Scan v2.2.0
           </h1>
           <p className="text-slate-400 text-lg">
             Download and run the CIS scanner on any computer in seconds
@@ -484,48 +484,38 @@ export default function QuickScan() {
               <div className="bg-blue-500/10 border-2 border-blue-500/30 rounded-xl p-6">
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Info className="w-5 h-5 text-blue-400" />
-                  How to Run the Scanner
+                  Quick Start - One Command Only!
                 </h3>
-                <ol className="space-y-3">
-                  <li className="flex gap-3 text-slate-200">
-                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">1</span>
-                    <div>
-                      <p className="font-semibold text-white">Open Command Prompt as Administrator</p>
-                      <p className="text-sm text-slate-400 mt-1">Press <kbd className="px-2 py-1 bg-slate-800 rounded border border-slate-600">Win + X</kbd>, then select "Terminal (Admin)"</p>
-                    </div>
-                  </li>
-                  <li className="flex gap-3 text-slate-200">
-                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">2</span>
-                    <div>
-                      <p className="font-semibold text-white">Navigate to Downloads folder</p>
-                      <code className="block mt-2 bg-slate-900 px-3 py-2 rounded border border-slate-700 text-cyan-400 text-sm">cd Downloads</code>
-                    </div>
-                  </li>
-                  <li className="flex gap-3 text-slate-200">
-                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">3</span>
-                    <div>
-                      <p className="font-semibold text-white">Set your authentication token</p>
-                      <code className="block mt-2 bg-slate-900 px-3 py-2 rounded border border-slate-700 text-cyan-400 text-sm">
-                        set CIS_TOKEN={token.substring(0, 30)}...
-                      </code>
-                      <p className="text-xs text-yellow-400 mt-1">💡 Click "Copy Token" above and paste the full token</p>
-                    </div>
-                  </li>
-                  <li className="flex gap-3 text-slate-200">
-                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">4</span>
-                    <div>
-                      <p className="font-semibold text-white">Run the scanner</p>
-                      <code className="block mt-2 bg-slate-900 px-3 py-2 rounded border border-slate-700 text-cyan-400 text-sm">cis-scanner-windows.exe</code>
-                    </div>
-                  </li>
-                  <li className="flex gap-3 text-slate-200">
-                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">5</span>
-                    <div>
-                      <p className="font-semibold text-white">View results</p>
-                      <p className="text-sm text-slate-400 mt-1">Scan takes 30-60 seconds. Refresh your dashboard to see results.</p>
-                    </div>
-                  </li>
-                </ol>
+                <div className="bg-slate-900 border border-cyan-500/30 rounded-lg p-4 mb-4">
+                  <p className="text-xs text-slate-400 mb-2 font-semibold">📋 COPY AND RUN THIS COMMAND:</p>
+                  <code className="block text-cyan-400 text-sm font-mono break-all select-all leading-relaxed">
+                    cd Downloads && .\cis-scanner-windows.exe --token {token}
+                  </code>
+                </div>
+                <div className="space-y-2 text-sm text-slate-300">
+                  <p className="flex items-start gap-2">
+                    <span className="text-emerald-400 font-bold mt-1">1.</span>
+                    <span><strong className="text-white">Open PowerShell</strong> (right-click Start → Windows PowerShell)</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="text-emerald-400 font-bold mt-1">2.</span>
+                    <span><strong className="text-white">Paste the command above</strong> and press Enter</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="text-emerald-400 font-bold mt-1">3.</span>
+                    <span><strong className="text-white">Wait 30-60 seconds</strong> for scan to complete</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="text-emerald-400 font-bold mt-1">4.</span>
+                    <span><strong className="text-white">View results</strong> - dashboard opens automatically!</span>
+                  </p>
+                </div>
+                <div className="mt-4 pt-4 border-t border-blue-500/20">
+                  <p className="text-xs text-yellow-400 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>If you get a permission error, right-click PowerShell and select "Run as Administrator"</span>
+                  </p>
+                </div>
               </div>
 
               {/* Actions */}
