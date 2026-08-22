@@ -1,8 +1,8 @@
 {
-  "buildCommand": "npm --prefix frontend ci && npm --prefix frontend run build",
+  "framework": "vite",
+  "buildCommand": "npm --prefix frontend install && npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "echo 'Skipping root install'",
-  "framework": null,
+  "installCommand": "npm --prefix frontend install",
   "env": {
     "VITE_API_URL": "https://cis-audit-api.onrender.com"
   }
