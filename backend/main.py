@@ -6,7 +6,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
-from routes import auth, scans, reports, billing, orgs, compliance, downloads
+from routes import auth, scans, reports, billing, orgs, compliance, downloads, exports
 from middleware import setup_error_handlers
 import os
 from dotenv import load_dotenv
@@ -126,6 +126,7 @@ app.include_router(billing.router,    prefix="/billing",  tags=["Billing"])
 app.include_router(orgs.router,       prefix="/orgs",     tags=["Organizations"])
 app.include_router(compliance.router, prefix="/api",      tags=["Compliance"])
 app.include_router(downloads.router,  prefix="",          tags=["Downloads"])  # No prefix for /downloads
+app.include_router(exports.router,    prefix="/api",      tags=["Exports"])
 
 # ── Health Check ─────────────────────────────────────────
 @app.get("/", tags=["Health"])
