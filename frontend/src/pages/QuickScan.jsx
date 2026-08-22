@@ -1,25 +1,32 @@
-import { useState } from 'react';
-import { Download, Play, CheckCircle, AlertCircle, Shield, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Download, Play, CheckCircle, AlertCircle, Shield, Info, Copy, X } from 'lucide-react';
 
 export default function QuickScan() {
   const [downloadStatus, setDownloadStatus] = useState(null);
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [token, setToken] = useState('');
   const [showToken, setShowToken] = useState(false);
+  const [copied, setCopied] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL || 'https://cis-audit-api.onrender.com';
 
+  // Force modal to show when token changes
+  useEffect(() => {
+    if (token && token.length > 0) {
+      setShowTokenModal(true);
+      setShowToken(true);
+    }
+  }, [token]);
+
   const handleDownloadLauncher = (platform) => {
-    setDownloadStatus(`Downloading ${platform} launcher...`);
-    
     // Get access token from localStorage
     const userToken = localStorage.getItem('access_token');
     
     if (!userToken) {
-      setDownloadStatus('Error: Not authenticated. Please login first.');
+      setDownloadStatus('❌ Error: Not authenticated. Please login first.');
       return;
     }
     
-    console.log('🔑 Token retrieved:', userToken ? 'Yes' : 'No');
+    setDownloadStatus(`⬇️ Downloading ${platform} launcher...`);
     
     // Create download with embedded token
     const downloadUrl = `${API_URL}/downloads/cis-scanner-${platform}${platform === 'windows' ? '.exe' : ''}?token=${userToken}`;
@@ -32,51 +39,45 @@ export default function QuickScan() {
     link.click();
     document.body.removeChild(link);
     
-    setDownloadStatus(`✅ ${platform} launcher downloaded!`);
-    
-    // Show token both in modal AND alert - FORCE STATE UPDATE
-    console.log('🚀 Setting modal state...');
+    // IMMEDIATELY show token - no delays
     setToken(userToken);
     setShowToken(true);
     setShowTokenModal(true);
+    setDownloadStatus(`✅ ${platform.toUpperCase()} launcher downloaded!`);
     
-    console.log('✅ Modal state set:', { showTokenModal: true, showToken: true });
-    
-    // Copy to clipboard immediately
+    // Copy to clipboard
     navigator.clipboard.writeText(userToken).then(() => {
-      console.log('📋 Token copied to clipboard');
+      console.log('✅ Token copied to clipboard');
+    }).catch(err => {
+      console.error('❌ Failed to copy:', err);
     });
     
-    // Show alert with instructions
-    setTimeout(() => {
-      alert(`✅ Download Complete!\n\n🔑 Your Token:\n${userToken}\n\n📝 Steps to Run:\n1. Open Command Prompt as Admin\n2. cd Downloads\n3. set CIS_TOKEN=${userToken}\n4. cis-scanner-windows.exe\n\n💡 Token is also copied to clipboard!`);
-    }, 500);
-    
-    // Clear status after 10 seconds
+    // Clear download status after 10 seconds
     setTimeout(() => setDownloadStatus(null), 10000);
   };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(token).then(() => {
-      alert('✅ Token copied to clipboard!');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }).catch(() => {
-      alert('Please manually copy the token above');
+      // Fallback: select text
+      alert('Token: ' + token);
     });
+  };
+
+  const closeModal = () => {
+    setShowTokenModal(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Debug Info - Remove after testing */}
-        <div className="fixed top-4 right-4 bg-purple-500/90 text-white px-4 py-2 rounded-lg text-xs font-mono z-[10001] shadow-xl">
-          Modal: {showTokenModal ? '✅ OPEN' : '❌ CLOSED'} | Token: {showToken ? '✅' : '❌'} | Len: {token.length}
-        </div>
-
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
             <Shield className="w-10 h-10 text-emerald-400" />
-            Quick Scan
+            Quick Scan v2.1.3
           </h1>
           <p className="text-slate-400 text-lg">
             Download and run the CIS scanner on any computer in seconds
@@ -403,87 +404,146 @@ export default function QuickScan() {
         </div>
       </div>
 
-      {/* Token Modal - MAXIMUM VISIBILITY */}
-      {showTokenModal && (
+      {/* TOKEN MODAL - BULLETPROOF VERSION */}
+      {showTokenModal && token && (
         <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" 
-          style={{ zIndex: 9999 }}
-          onClick={() => setShowTokenModal(false)}
+          className="fixed inset-0 flex items-center justify-center p-4 animate-fadeIn"
+          style={{ 
+            zIndex: 999999,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            backdropFilter: 'blur(4px)'
+          }}
+          onClick={closeModal}
         >
           <div 
-            className="bg-slate-800 border-4 border-emerald-500 rounded-xl p-8 max-w-2xl w-full shadow-2xl animate-pulse-slow" 
-            style={{ zIndex: 10000 }}
+            className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden animate-slideUp"
+            style={{ 
+              border: '3px solid #10b981',
+              boxShadow: '0 0 50px rgba(16, 185, 129, 0.3)'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-emerald-400" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-white">Download Complete!</h2>
-                <p className="text-slate-400 text-sm">Copy your authentication token below</p>
-              </div>
-            </div>
-
-            <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 mb-6">
-              <p className="text-xs text-slate-400 mb-2">Your Authentication Token:</p>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 text-cyan-400 text-sm font-mono break-all bg-slate-950 p-3 rounded border border-slate-700">
-                  {token}
-                </code>
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border-b border-emerald-500/30 p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center border-2 border-emerald-500">
+                    <CheckCircle className="w-8 h-8 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Download Complete!</h2>
+                    <p className="text-slate-300 text-sm mt-1">Your authentication token is ready</p>
+                  </div>
+                </div>
                 <button
-                  onClick={copyToClipboard}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2"
+                  onClick={closeModal}
+                  className="text-slate-400 hover:text-white transition-colors p-2"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Copy
+                  <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
-              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-                <Info className="w-5 h-5 text-blue-400" />
-                How to Use:
-              </h3>
-              <ol className="space-y-2 text-sm text-slate-300">
-                <li className="flex gap-2">
-                  <span className="text-blue-400 font-bold">1.</span>
-                  <span>Open <strong className="text-white">Command Prompt as Administrator</strong></span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-400 font-bold">2.</span>
-                  <span>Navigate to Downloads: <code className="text-cyan-400 bg-slate-900 px-2 py-0.5 rounded">cd Downloads</code></span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-400 font-bold">3.</span>
-                  <span>Set token: <code className="text-cyan-400 bg-slate-900 px-2 py-0.5 rounded">set CIS_TOKEN=PASTE_TOKEN_HERE</code></span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-400 font-bold">4.</span>
-                  <span>Run scanner: <code className="text-cyan-400 bg-slate-900 px-2 py-0.5 rounded">cis-scanner-windows.exe</code></span>
-                </li>
-              </ol>
-            </div>
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Token Display */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-semibold text-slate-300 uppercase tracking-wide">
+                    🔑 Your Authentication Token
+                  </label>
+                  <button
+                    onClick={copyToClipboard}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                      copied 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                    }`}
+                  >
+                    {copied ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy Token
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="bg-slate-950 border-2 border-emerald-500/30 rounded-lg p-4">
+                  <code className="text-cyan-400 text-sm font-mono break-all block select-all">
+                    {token}
+                  </code>
+                </div>
+              </div>
 
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowTokenModal(false)}
-                className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors"
-              >
-                Close
-              </button>
-              <button
-                onClick={copyToClipboard}
-                className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Copy Token & Close
-              </button>
+              {/* Instructions */}
+              <div className="bg-blue-500/10 border-2 border-blue-500/30 rounded-xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Info className="w-5 h-5 text-blue-400" />
+                  How to Run the Scanner
+                </h3>
+                <ol className="space-y-3">
+                  <li className="flex gap-3 text-slate-200">
+                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">1</span>
+                    <div>
+                      <p className="font-semibold text-white">Open Command Prompt as Administrator</p>
+                      <p className="text-sm text-slate-400 mt-1">Press <kbd className="px-2 py-1 bg-slate-800 rounded border border-slate-600">Win + X</kbd>, then select "Terminal (Admin)"</p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3 text-slate-200">
+                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">2</span>
+                    <div>
+                      <p className="font-semibold text-white">Navigate to Downloads folder</p>
+                      <code className="block mt-2 bg-slate-900 px-3 py-2 rounded border border-slate-700 text-cyan-400 text-sm">cd Downloads</code>
+                    </div>
+                  </li>
+                  <li className="flex gap-3 text-slate-200">
+                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">3</span>
+                    <div>
+                      <p className="font-semibold text-white">Set your authentication token</p>
+                      <code className="block mt-2 bg-slate-900 px-3 py-2 rounded border border-slate-700 text-cyan-400 text-sm">
+                        set CIS_TOKEN={token.substring(0, 30)}...
+                      </code>
+                      <p className="text-xs text-yellow-400 mt-1">💡 Click "Copy Token" above and paste the full token</p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3 text-slate-200">
+                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">4</span>
+                    <div>
+                      <p className="font-semibold text-white">Run the scanner</p>
+                      <code className="block mt-2 bg-slate-900 px-3 py-2 rounded border border-slate-700 text-cyan-400 text-sm">cis-scanner-windows.exe</code>
+                    </div>
+                  </li>
+                  <li className="flex gap-3 text-slate-200">
+                    <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-blue-400 font-bold text-sm">5</span>
+                    <div>
+                      <p className="font-semibold text-white">View results</p>
+                      <p className="text-sm text-slate-400 mt-1">Scan takes 30-60 seconds. Refresh your dashboard to see results.</p>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 justify-end pt-4 border-t border-slate-700">
+                <button
+                  onClick={copyToClipboard}
+                  className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+                >
+                  <Copy className="w-5 h-5" />
+                  Copy Token
+                </button>
+                <button
+                  onClick={closeModal}
+                  className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-all"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
