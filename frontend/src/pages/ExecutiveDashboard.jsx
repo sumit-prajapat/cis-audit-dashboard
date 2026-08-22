@@ -99,7 +99,7 @@ const ExecutiveDashboard = ({ orgId }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <div className="text-sm font-medium text-gray-400">Security Score</div>
-          <div className="mt-2 text-3xl font-bold text-sky-400">{metrics?.securityScore?.toFixed(1)}%</div>
+          <div className="mt-2 text-3xl font-bold text-sky-400">{(metrics?.securityScore || 0).toFixed(1)}%</div>
           <div className="mt-1 text-xs text-gray-500">Organization-wide compliance</div>
         </Card>
 
@@ -168,7 +168,7 @@ const ExecutiveDashboard = ({ orgId }) => {
               <div key={scan.id} className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
                 <span className="text-sm text-gray-300">{scan.device_id}</span>
                 <span className={`text-sm font-bold ${scan.compliance_score > 80 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {scan.compliance_score.toFixed(1)}%
+                  {(scan.compliance_score || 0).toFixed(1)}%
                 </span>
               </div>
             ))}

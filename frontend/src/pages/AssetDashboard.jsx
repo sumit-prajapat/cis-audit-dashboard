@@ -146,7 +146,7 @@ const AssetDashboard = ({ orgId }) => {
                       {device.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="py-3 text-gray-300">{device.compliance_score?.toFixed(1) || 'N/A'}%</td>
+                  <td className="py-3 text-gray-300">{(device.compliance_score || 0).toFixed(1)}%</td>
                 </tr>
               ))}
             </tbody>
