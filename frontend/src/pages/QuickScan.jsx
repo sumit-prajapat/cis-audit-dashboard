@@ -19,6 +19,8 @@ export default function QuickScan() {
       return;
     }
     
+    console.log('🔑 Token retrieved:', userToken ? 'Yes' : 'No');
+    
     // Create download with embedded token
     const downloadUrl = `${API_URL}/downloads/cis-scanner-${platform}${platform === 'windows' ? '.exe' : ''}?token=${userToken}`;
     
@@ -32,21 +34,26 @@ export default function QuickScan() {
     
     setDownloadStatus(`✅ ${platform} launcher downloaded!`);
     
-    // Show token both in modal AND alert
+    // Show token both in modal AND alert - FORCE STATE UPDATE
+    console.log('🚀 Setting modal state...');
     setToken(userToken);
     setShowToken(true);
     setShowTokenModal(true);
     
-    // Show browser alert as backup (after a delay so modal shows first)
-    setTimeout(() => {
-      alert(`✅ Token copied to clipboard!\n\nUse this command:\n\nset CIS_TOKEN=${userToken}\n\nThen run: cis-scanner-windows.exe`);
-    }, 1500);
+    console.log('✅ Modal state set:', { showTokenModal: true, showToken: true });
     
     // Copy to clipboard immediately
-    navigator.clipboard.writeText(userToken);
+    navigator.clipboard.writeText(userToken).then(() => {
+      console.log('📋 Token copied to clipboard');
+    });
     
-    // Clear status after 5 seconds
-    setTimeout(() => setDownloadStatus(null), 5000);
+    // Show alert with instructions
+    setTimeout(() => {
+      alert(`✅ Download Complete!\n\n🔑 Your Token:\n${userToken}\n\n📝 Steps to Run:\n1. Open Command Prompt as Admin\n2. cd Downloads\n3. set CIS_TOKEN=${userToken}\n4. cis-scanner-windows.exe\n\n💡 Token is also copied to clipboard!`);
+    }, 500);
+    
+    // Clear status after 10 seconds
+    setTimeout(() => setDownloadStatus(null), 10000);
   };
 
   const copyToClipboard = () => {
@@ -60,6 +67,11 @@ export default function QuickScan() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
       <div className="max-w-6xl mx-auto">
+        {/* Debug Info - Remove after testing */}
+        <div className="fixed top-4 right-4 bg-purple-500/90 text-white px-4 py-2 rounded-lg text-xs font-mono z-[10001] shadow-xl">
+          Modal: {showTokenModal ? '✅ OPEN' : '❌ CLOSED'} | Token: {showToken ? '✅' : '❌'} | Len: {token.length}
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
@@ -98,15 +110,24 @@ export default function QuickScan() {
                 </h3>
                 <p className="text-slate-300 text-sm mt-1">Copy this token to run the scanner</p>
               </div>
-              <button
-                onClick={copyToClipboard}
-                className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg transition-all flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Copy Token
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowTokenModal(true)}
+                  className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+                >
+                  <Info className="w-5 h-5" />
+                  Show Instructions
+                </button>
+                <button
+                  onClick={copyToClipboard}
+                  className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy Token
+                </button>
+              </div>
             </div>
             <div className="bg-slate-900 border border-emerald-500/20 rounded-lg p-4">
               <code className="text-cyan-400 text-sm font-mono break-all block">
@@ -382,10 +403,18 @@ export default function QuickScan() {
         </div>
       </div>
 
-      {/* Token Modal */}
+      {/* Token Modal - MAXIMUM VISIBILITY */}
       {showTokenModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowTokenModal(false)}>
-          <div className="bg-slate-800 border border-emerald-500/30 rounded-xl p-8 max-w-2xl w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" 
+          style={{ zIndex: 9999 }}
+          onClick={() => setShowTokenModal(false)}
+        >
+          <div 
+            className="bg-slate-800 border-4 border-emerald-500 rounded-xl p-8 max-w-2xl w-full shadow-2xl animate-pulse-slow" 
+            style={{ zIndex: 10000 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-emerald-400" />
