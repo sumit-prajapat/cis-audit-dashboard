@@ -47,22 +47,29 @@ async def initialize_database():
     Uses Base.metadata.create_all() which is safe and idempotent.
     """
     try:
+        # Import database test function
+        from database import test_connection
+        
         # Test connection first
-        from sqlalchemy import text
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-            logging.info("✅ Database connection test successful")
+        success, message = test_connection()
+        if success:
+            logging.info(f"✅ {message}")
+        else:
+            logging.error(f"❌ {message}")
+            logging.warning("⚠️  App started but database is not available")
+            logging.warning("⚠️  Please check your DATABASE_URL environment variable")
+            return  # Don't try to create tables if connection failed
         
         # Create tables if they don't exist (safe, idempotent operation)
         # This is better than running migrations during startup
         Base.metadata.create_all(bind=engine)
         logging.info("✅ Database tables created/verified successfully")
-        logging.info("ℹ️  If you need to run migrations manually, use: alembic upgrade head")
+        logging.info("ℹ️  For migrations, run manually: alembic upgrade head")
         
     except Exception as e:
         logging.error(f"❌ Database initialization failed: {e}")
-        logging.warning(f"⚠️  App will start but database operations will fail until database is available")
-        logging.warning(f"⚠️  Please check your DATABASE_URL environment variable")
+        logging.warning(f"⚠️  App started but database operations will fail")
+        logging.warning(f"⚠️  Please verify DATABASE_URL and database server status")
         # Don't raise - let app start and show proper error messages in health checks
 
 
@@ -164,13 +171,14 @@ def readiness_probe(db: Session = Depends(get_db)):
     try:
         from sqlalchemy import text
         db.execute(text("SELECT 1"))
+        db.commit()
         return {"status": "ready", "database": "connected"}
     except Exception as e:
         logging.error(f"Database health check failed: {e}")
         from fastapi.responses import JSONResponse
         return JSONResponse(
             status_code=503,
-            content={"status": "not_ready", "database": "disconnected", "error": str(e)}
+            content={"status": "not_ready", "database": "disconnected", "error": str(e)[:200]}
         )
 
 
