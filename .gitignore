@@ -1,69 +1,32 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-# Allow backend downloads folder for launcher executables
-!backend/downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-*.log
-.venv/
-venv/
-ENV/
-env/
+# Environment variables
+backend/.env
+backend/.env.local
+frontend/.env.local
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-*.db
-*.sqlite
-*.sqlite3
-test.db
+# Python
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.pytest_cache/
+backend/cis_audit.db
+backend/venv/
+backend/env/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
 
 # IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
+
+# OS
 .DS_Store
+Thumbs.db
 
-# Environment
-.env
-.env.local
-.env.*.local
-*.pem
-
-# Node / Frontend
-node_modules/
-dist/
-.cache/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Vercel
-.vercel
-
-# Temporary files
-*.tmp
-*.bak
-*.orig
-.env*
+# Deployment
+.vercel/
+backend/downloads/*.exe

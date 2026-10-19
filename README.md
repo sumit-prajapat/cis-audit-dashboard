@@ -4,148 +4,49 @@ Enterprise-grade security compliance platform for automated CIS benchmark auditi
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://python.org)
-[![React](https://img.shields.io/badge/react-18.3-blue.svg)](https://reactjs.org)
+[![React](https://img.shields.io/badge/react-18.2-blue.svg)](https://reactjs.org)
 [![FastAPI](https://img.shields.io/badge/fastapi-0.115-green.svg)](https://fastapi.tiangolo.com)
 
 ---
 
-## 📋 Table of Contents
+## 📋 Overview
 
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-- [Deployment](#deployment)
-- [Documentation](#documentation)
-- [License](#license)
+CIS Audit Dashboard automates CIS (Center for Internet Security) benchmark auditing for Windows and Linux systems. Built with modern technologies, it provides real-time security posture monitoring, automated scanning, and executive-ready reporting.
 
----
+### Key Features
 
-## 🌟 Overview
-
-CIS Audit Dashboard is a comprehensive security compliance platform that automates CIS (Center for Internet Security) benchmark auditing for Windows and Linux systems. Built with modern technologies, it provides real-time security posture monitoring, automated scanning, and executive-ready reporting.
-
-### Key Capabilities
-
-- **Automated Security Scanning** - One-click scanner deployment with zero configuration
-- **Real-time Monitoring** - Live compliance status tracking across your infrastructure
-- **Multi-tenant Architecture** - Organization-based isolation with role-based access control
+- **Automated Security Scanning** - One-click scanner deployment
+- **Real-time Monitoring** - Live compliance status tracking
+- **Multi-tenant Architecture** - Organization-based isolation with RBAC
 - **Comprehensive Reporting** - Executive, technical, compliance, and risk reports
-- **Enterprise-grade Security** - JWT authentication, CSRF protection, rate limiting, and audit logging
+- **Enterprise Security** - JWT authentication, CSRF protection, rate limiting
 
 ---
 
-## ✨ Features
-
-### 🔍 Scanning & Assessment
-- **Quick Scan** - Download and run portable scanner in under 2 minutes
-- **Scheduled Scans** - Automated compliance monitoring
-- **Multi-platform Support** - Windows (10, 11, Server) and Linux (Ubuntu, Debian, CentOS, RHEL)
-- **18+ Security Checks** - Password policies, firewall, encryption, updates, and more
-
-### 📊 Dashboards & Analytics
-- **Executive Dashboard** - High-level compliance metrics and trends
-- **Security Operations** - Real-time alerts and incident management
-- **Compliance Dashboard** - Regulatory framework alignment tracking
-- **Asset Dashboard** - Device inventory and vulnerability management
-- **Risk Dashboard** - Risk scoring and prioritization
-
-### 📈 Reporting
-- **Quick Report Generation** - One-click executive, technical, compliance, and risk reports
-- **Scheduled Reports** - Automated report delivery
-- **Multiple Formats** - PDF, Excel, and CSV export options
-- **Custom Branding** - White-label reports with organization logo
-
-### 👥 Multi-tenancy & Access Control
-- **Organization Management** - Isolated workspaces for each customer
-- **Role-based Access** - Owner, Admin, Member, and Read-only roles
-- **Team Collaboration** - Invite team members, manage permissions
-- **Audit Logging** - Complete activity tracking and compliance auditing
-
----
-
-## 🏗️ Architecture
+## 🏗️ Project Structure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (Vite + React)               │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
-│  │ Dashboards │  │  Reports   │  │  Settings  │            │
-│  └─────┬──────┘  └──────┬─────┘  └──────┬─────┘            │
-│        │                 │                │                  │
-│        └─────────────────┴────────────────┘                  │
-│                          │                                    │
-│                    REST API (HTTPS)                          │
-└──────────────────────────┼───────────────────────────────────┘
-                           │
-┌──────────────────────────▼───────────────────────────────────┐
-│                   Backend (FastAPI + PostgreSQL)             │
-│  ┌───────────┐  ┌──────────┐  ┌───────────┐  ┌──────────┐  │
-│  │   Auth    │  │  Scans   │  │  Reports  │  │  Billing │  │
-│  │  Service  │  │  Service │  │  Service  │  │  Service │  │
-│  └───────────┘  └──────────┘  └───────────┘  └──────────┘  │
-│                                                               │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │           PostgreSQL Database (Alembic ORM)          │   │
-│  │  • Users  • Organizations  • Devices  • Scans        │   │
-│  │  • Reports  • Audit Logs  • Billing                  │   │
-│  └──────────────────────────────────────────────────────┘   │
-└───────────────────────────────────────────────────────────────┘
-                           │
-┌──────────────────────────▼───────────────────────────────────┐
-│                    Scanner Agent (Python)                     │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │  Windows Checks    │  Linux Checks                     │  │
-│  │  • Password Policy │  • SSH Configuration              │  │
-│  │  • Firewall Status │  • Firewall Rules                 │  │
-│  │  • Windows Defender│  • SELinux/AppArmor               │  │
-│  │  • BitLocker       │  • Package Updates                │  │
-│  │  • Account Lockout │  • File Permissions               │  │
-│  └────────────────────────────────────────────────────────┘  │
-└───────────────────────────────────────────────────────────────┘
+cis-audit-dashboard/
+├── frontend/          # React + Vite frontend application
+├── backend/           # FastAPI backend API
+│   ├── agent/         # Security scanner agent
+│   ├── config/        # Configuration files (render.yaml, docker-compose, etc.)
+│   └── docs/          # Documentation files
+├── README.md          # This file
+└── render.yaml        # Render deployment configuration
 ```
-
-### Tech Stack
-
-**Frontend**
-- React 18.3 + Vite 5.4
-- TailwindCSS for styling
-- Lucide React icons
-- React Router for navigation
-- Axios for API calls
-
-**Backend**
-- FastAPI 0.115 (Python 3.11+)
-- PostgreSQL 15+ with SQLAlchemy ORM
-- Alembic for database migrations
-- JWT authentication (python-jose)
-- Bcrypt password hashing
-- CORS, CSRF, and rate limiting middleware
-
-**Scanner Agent**
-- Python 3.11+ portable executable
-- Windows Registry access (winreg)
-- Linux system checks (subprocess)
-- PyInstaller for executable packaging
-
-**Infrastructure**
-- Frontend: Vercel (Global CDN)
-- Backend: Render (Cloud hosting)
-- Database: Render PostgreSQL
-- CI/CD: GitHub Actions
 
 ---
 
-## � Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Python 3.11+** (for backend and scanner)
-- **Node.js 20+** (for frontend)
-- **PostgreSQL 15+** (for database)
-- **Git** (for version control)
+- **Python 3.11+** (backend)
+- **Node.js 20+** (frontend)
+- **PostgreSQL 15+** (production) or SQLite (development)
 
-### Local Development Setup
+### Local Development
 
 #### 1. Clone Repository
 ```bash
@@ -159,23 +60,24 @@ cd backend
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your database credentials
+# Edit .env with your settings
 
 # Run migrations
 alembic upgrade head
 
-# Start backend server
+# Start backend
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Backend will be available at `http://localhost:8000`
+Backend: `http://localhost:8000`  
+API Docs: `http://localhost:8000/api/docs`
 
 #### 3. Frontend Setup
 ```bash
@@ -186,118 +88,111 @@ npm install
 
 # Configure environment
 cp .env.example .env
-# Edit .env with backend API URL
+# Edit .env to point to backend
 
-# Start development server
+# Start frontend
 npm run dev
 ```
 
-Frontend will be available at `http://localhost:5173`
-
-#### 4. Scanner Agent Setup
-```bash
-cd ../agent
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Test scanner locally
-python launcher.py --token YOUR_ACCESS_TOKEN
-```
+Frontend: `http://localhost:5173`
 
 ---
 
-## 🌐 Deployment
+## 🌐 Production Deployment
 
-### Production Deployment
+### Backend (Render)
 
-#### Frontend (Vercel)
-1. Connect your GitHub repository to Vercel
-2. Configure build settings:
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-   - **Root Directory:** Leave empty or set to `.`
-3. Add environment variable:
-   - `VITE_API_URL` = `https://your-backend-url.com`
-4. Deploy
-
-#### Backend (Render)
-1. Create new Web Service on Render
-2. Connect GitHub repository
-3. Configure:
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
-4. Add environment variables:
-   - `DATABASE_URL` (PostgreSQL connection string)
-   - `SECRET_KEY` (generate with `python generate_secret.py`)
-   - `FRONTEND_URL` = `https://your-frontend-url.com`
-5. Deploy
-
-#### Database (Render PostgreSQL)
 1. Create PostgreSQL database on Render
-2. Copy connection string
-3. Add to backend environment as `DATABASE_URL`
-4. Run migrations:
-   ```bash
-   alembic upgrade head
-   ```
+2. Deploy web service:
+   - **Root Directory:** `backend`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `bash start_server.sh`
+3. Set environment variables (see `backend/.env.example`)
 
-### Scanner Distribution
-Build portable executables:
+### Frontend (Vercel)
 
-**Windows:**
-```bash
-cd agent
-python build_launcher.py
-# Output: dist/cis-scanner-windows.exe
-```
+1. Connect GitHub repository
+2. **Root Directory:** `frontend`
+3. **Build Command:** `npm run build`
+4. **Environment Variable:** `VITE_API_URL=<your-backend-url>`
 
-**Linux:**
-```bash
-cd agent
-pyinstaller --onefile launcher.py
-# Output: dist/launcher (rename to cis-scanner-linux)
-```
-
-Place executables in `backend/downloads/` for user download.
+**📚 Full deployment guide:** `backend/docs/PRODUCTION_DEPLOYMENT.md`
 
 ---
 
-## � Documentation
+## ✨ Key Technologies
 
-Comprehensive documentation is available in the `/docs` directory:
+### Frontend
+- React 18.2 + Vite 5.4
+- TailwindCSS
+- Axios
+- React Router
 
-- [Architecture Overview](docs/deployment/ARCHITECTURE.md)
-- [Deployment Guide](docs/deployment/DEPLOYMENT.md)
-- [Setup Instructions](docs/deployment/SETUP_INSTRUCTIONS.md)
+### Backend
+- FastAPI 0.115
+- SQLAlchemy ORM
+- PostgreSQL / SQLite
+- Alembic migrations
+- JWT authentication
 
-### API Documentation
+### Scanner Agent
+- Python 3.11+
+- Windows & Linux support
+- PyInstaller (executable packaging)
 
-Interactive API docs available at:
-- **Swagger UI:** `https://your-backend-url.com/docs`
-- **ReDoc:** `https://your-backend-url.com/redoc`
+---
+
+## 📊 Features
+
+### Security Scanning
+- 18+ automated security checks
+- Password policies
+- Firewall configuration
+- Encryption status
+- System updates
+- File permissions
+
+### Dashboards
+- Executive Dashboard
+- Security Operations
+- Compliance Dashboard
+- Asset Dashboard
+- Risk Dashboard
+
+### Reporting
+- PDF export
+- Excel export
+- CSV export
+- Scheduled reports
+- Custom branding
+
+### Multi-tenancy
+- Organization isolation
+- Role-based access control (Owner, Admin, Member, Read-only)
+- Team collaboration
+- Audit logging
 
 ---
 
 ## 🔒 Security
 
-### Authentication & Authorization
-- JWT-based authentication with access and refresh tokens
-- Secure HTTP-only cookies for token storage
-- CSRF protection for state-changing operations
-- Role-based access control (RBAC)
+- JWT-based authentication
+- CSRF protection
+- Rate limiting
+- Bcrypt password hashing
+- SQL injection protection
+- XSS protection
+- HTTPS enforcement
 
-### Data Protection
-- Bcrypt password hashing (cost factor 12)
-- Database connection encryption (SSL)
-- Environment variable secrets management
-- Input validation and sanitization
+---
 
-### Compliance
-- GDPR-compliant data handling
-- SOC 2 security controls
-- Audit logging for all critical operations
-- Regular security updates
+## 📖 Documentation
+
+- **Quick Start:** `backend/docs/QUICK_START.md`
+- **Production Deployment:** `backend/docs/PRODUCTION_DEPLOYMENT.md`
+- **User Guide:** `backend/docs/USER_GUIDE.md`
+- **Demo Checklist:** `backend/docs/DEMO_CHECKLIST.md`
+- **API Documentation:** `http://localhost:8000/api/docs` (when running)
 
 ---
 
@@ -307,8 +202,6 @@ Interactive API docs available at:
 ```bash
 cd backend
 pytest
-# Or with coverage:
-pytest --cov=. --cov-report=html
 ```
 
 ### Frontend Tests
@@ -321,13 +214,11 @@ npm test
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these guidelines:
-
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
 ---
 
@@ -337,7 +228,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## �‍💻 Authors
+## 👨‍💻 Author
 
 **Sumit Prajapat**
 - GitHub: [@sumit-prajapat](https://github.com/sumit-prajapat)
@@ -345,45 +236,45 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## �🙏 Acknowledgments
+## 🙏 Acknowledgments
 
-- [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks/) for security standards
-- [FastAPI](https://fastapi.tiangolo.com/) for the excellent Python framework
-- [React](https://reactjs.org/) and [Vite](https://vitejs.dev/) for modern frontend tooling
-- [TailwindCSS](https://tailwindcss.com/) for utility-first styling
+- [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks/)
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [React](https://react.dev/)
+- [TailwindCSS](https://tailwindcss.com/)
 
 ---
 
-## � Project Status
+## 📈 Project Status
 
-**Current Version:** 2.2.0  
-**Status:** Production Ready  
-**Last Updated:** August 22, 2026
+**Version:** 3.0.0  
+**Status:** ✅ Production Ready  
+**Last Updated:** October 19, 2026
 
 ### Recent Updates
-- ✅ One-click Quick Scan feature with portable executables
-- ✅ Multi-dashboard analytics (Executive, Security Ops, Compliance, Risk)
-- ✅ Automated report generation and scheduling
-- ✅ Enhanced security with CSRF protection and rate limiting
-- ✅ Improved UI/UX with modern design system
+- ✅ Comprehensive database handling with NullPool for serverless
+- ✅ Bulletproof startup script with health checks
+- ✅ Production-grade error handling and logging
+- ✅ Clean project structure and organization
+- ✅ Complete deployment documentation
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Mobile app (iOS and Android)
-- [ ] Integration with SIEM platforms (Splunk, ELK)
-- [ ] Advanced ML-based anomaly detection
-- [ ] Custom compliance framework builder
-- [ ] Automated remediation actions
+- [ ] Mobile app (iOS/Android)
+- [ ] SIEM integration (Splunk, ELK)
+- [ ] ML-based anomaly detection
+- [ ] Custom compliance frameworks
+- [ ] Automated remediation
 - [ ] SSO integration (SAML, OAuth2)
-- [ ] Kubernetes and container scanning
+- [ ] Container scanning (Docker, Kubernetes)
 
 ---
 
 <div align="center">
 
-**[⬆ back to top](#-cis-audit-dashboard)**
+**[⬆ Back to top](#-cis-audit-dashboard)**
 
 Made with ❤️ for enterprise security teams
 
