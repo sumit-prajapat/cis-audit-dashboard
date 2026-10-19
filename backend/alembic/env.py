@@ -75,8 +75,21 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Get configuration and handle PostgreSQL URL conversion
+    configuration = config.get_section(config.config_ini_section, {})
+    
+    # Convert postgres:// to postgresql+psycopg:// for proper driver
+    if 'sqlalchemy.url' in configuration:
+        url = configuration['sqlalchemy.url']
+        if url and url.startswith('postgres://'):
+            url = url.replace('postgres://', 'postgresql+psycopg://', 1)
+            configuration['sqlalchemy.url'] = url
+        elif url and url.startswith('postgresql://') and '+psycopg' not in url:
+            url = url.replace('postgresql://', 'postgresql+psycopg://', 1)
+            configuration['sqlalchemy.url'] = url
+    
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

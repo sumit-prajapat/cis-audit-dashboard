@@ -44,6 +44,7 @@ async def initialize_database():
     """
     Database initialization - create tables if they don't exist.
     This is non-blocking - app will start even if database is temporarily unavailable.
+    Uses Base.metadata.create_all() which is safe and idempotent.
     """
     try:
         # Test connection first
@@ -52,9 +53,11 @@ async def initialize_database():
             conn.execute(text("SELECT 1"))
             logging.info("✅ Database connection test successful")
         
-        # Create tables if they don't exist (safe operation)
+        # Create tables if they don't exist (safe, idempotent operation)
+        # This is better than running migrations during startup
         Base.metadata.create_all(bind=engine)
         logging.info("✅ Database tables created/verified successfully")
+        logging.info("ℹ️  If you need to run migrations manually, use: alembic upgrade head")
         
     except Exception as e:
         logging.error(f"❌ Database initialization failed: {e}")
