@@ -40,25 +40,27 @@ app = FastAPI(
 
 # ── Database Initialization ──────────────────────────────
 @app.on_event("startup")
-def initialize_database():
+async def initialize_database():
     """
     Database initialization - create tables if they don't exist.
-    This ensures the app works on first deployment without manual migration.
+    This is non-blocking - app will start even if database is temporarily unavailable.
     """
     try:
-        # Always create tables if they don't exist (safe operation)
-        Base.metadata.create_all(bind=engine)
-        logging.info("✅ Database tables created/verified successfully")
-        
-        # Test connection
+        # Test connection first
         from sqlalchemy import text
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
             logging.info("✅ Database connection test successful")
+        
+        # Create tables if they don't exist (safe operation)
+        Base.metadata.create_all(bind=engine)
+        logging.info("✅ Database tables created/verified successfully")
+        
     except Exception as e:
         logging.error(f"❌ Database initialization failed: {e}")
-        logging.error(f"   App will start but database operations will fail")
-        # Don't raise - let app start and show proper error messages
+        logging.warning(f"⚠️  App will start but database operations will fail until database is available")
+        logging.warning(f"⚠️  Please check your DATABASE_URL environment variable")
+        # Don't raise - let app start and show proper error messages in health checks
 
 
 # ── CORS Configuration ───────────────────────────────────

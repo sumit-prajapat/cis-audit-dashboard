@@ -39,29 +39,41 @@ if DATABASE_URL.startswith("postgresql://") and "+psycopg" not in DATABASE_URL:
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
     logger.info("📝 Added psycopg driver")
 
-# Create engine with robust settings for cloud databases
+# Create engine with appropriate settings for database type
+is_sqlite = DATABASE_URL.startswith("sqlite")
+
 try:
-    engine = create_engine(
-        DATABASE_URL,
-        pool_pre_ping=True,  # Verify connections before using
-        pool_size=5,  # Connection pool size
-        max_overflow=10,  # Max overflow connections  
-        pool_recycle=300,  # Recycle connections every 5 minutes (important for Supabase)
-        pool_timeout=30,  # Wait up to 30 seconds for connection
-        echo=False  # Set to True to debug SQL queries
-    )
+    if is_sqlite:
+        # SQLite configuration
+        engine = create_engine(
+            DATABASE_URL,
+            connect_args={"check_same_thread": False},  # Required for SQLite with FastAPI
+            echo=False  # Set to True to debug SQL queries
+        )
+        logger.info("📝 Using SQLite database")
+    else:
+        # PostgreSQL configuration with robust settings for cloud databases
+        engine = create_engine(
+            DATABASE_URL,
+            pool_pre_ping=True,  # Verify connections before using
+            pool_size=5,  # Connection pool size
+            max_overflow=10,  # Max overflow connections  
+            pool_recycle=300,  # Recycle connections every 5 minutes (important for cloud databases)
+            pool_timeout=30,  # Wait up to 30 seconds for connection
+            connect_args={
+                "connect_timeout": 10,  # Connection timeout in seconds
+            },
+            echo=False  # Set to True to debug SQL queries
+        )
+        logger.info("📝 Using PostgreSQL database")
     
-    # Test the connection immediately
-    from sqlalchemy import text
-    with engine.connect() as conn:
-        conn.execute(text("SELECT 1"))
-    
-    logger.info("✅ Database engine created and tested successfully")
+    logger.info("✅ Database engine created successfully")
     
 except Exception as e:
     logger.error(f"❌ Failed to create database engine: {str(e)}")
     logger.error(f"   Connection string format: {safe_url}")
-    raise
+    # Don't raise - let the app start and show proper error messages in health checks
+    logger.warning("⚠️  App will start but database operations may fail until connection is available")
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
