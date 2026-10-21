@@ -100,6 +100,31 @@ def send_results(device, results, api_url, token):
         return False, f"Error: {e}"
 
 
+def get_token_interactive():
+    """Prompt user for token if not found."""
+    print("\n❌ No authentication token found!")
+    print("\nTo authenticate, either:")
+    print("  1. Download Launcher from dashboard (auto-authenticated)")
+    print("  2. Set CIS_TOKEN environment variable")
+    print("  3. Pass --token flag")
+    print("\nExample:")
+    print("  cis-scanner-windows.exe --token YOUR_TOKEN")
+    print()
+    
+    response = input("Would you like to enter your token now? (y/n): ").strip().lower()
+    if response in ['y', 'yes']:
+        print("\n📋 Paste your authentication token below:")
+        print("   (Get it from: Quick Scan page in dashboard)")
+        print()
+        token = input("Token: ").strip()
+        if token:
+            return token
+        else:
+            print("❌ No token entered.")
+            return None
+    return None
+
+
 def main():
     """Main launcher entry point."""
     
@@ -121,24 +146,28 @@ def main():
     
     # Get authentication token
     token = get_token_from_browser()
+    
+    # If no token found, prompt user
     if not token:
-        print("\n❌ No authentication token found!")
-        print("\nTo authenticate, either:")
-        print("  1. Download launcher from dashboard (auto-authenticated)")
-        print("  2. Set CIS_TOKEN environment variable")
-        print("  3. Pass --token flag")
-        print("\nExample:")
-        print(f"  python launcher.py --token YOUR_TOKEN")
-        print(f"\nDashboard: {DASHBOARD_URL}")
-        input("\nPress Enter to exit...")
-        sys.exit(1)
+        token = get_token_interactive()
+        if not token:
+            print(f"\n⚠️  Cannot proceed without authentication.")
+            print(f"\n🌐 Get your token from: {DASHBOARD_URL}/quick-scan")
+            print("\n" + "="*60)
+            input("\nPress Enter to exit...")
+            sys.exit(1)
+    
+    print(f"\n✅ Authentication token validated")
     
     # Run checks
-    print("\n🔍 Running CIS checks...\n")
+    print("\n🔍 Running CIS checks...")
+    print("   This may take 30-60 seconds...\n")
     try:
         results = run_checks()
     except Exception as e:
         print(f"\n❌ Error running checks: {e}")
+        import traceback
+        traceback.print_exc()
         input("\nPress Enter to exit...")
         sys.exit(1)
     
@@ -180,6 +209,10 @@ def main():
     else:
         print(f"❌ Upload failed: {result}")
         print("\nResults have been displayed above but not saved to dashboard.")
+        print("\nTroubleshooting:")
+        print("  • Check your internet connection")
+        print("  • Verify the token is still valid")
+        print(f"  • Try getting a new token from: {DASHBOARD_URL}/quick-scan")
     
     print("\n" + "="*60)
     input("\nPress Enter to exit...")

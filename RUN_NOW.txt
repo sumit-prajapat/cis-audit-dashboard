@@ -1,0 +1,47 @@
+================================================================================
+  🚀 RUN CIS SCANNER NOW - COPY AND PASTE THIS COMMAND
+================================================================================
+
+STEP 1: Open PowerShell as Administrator
+----------------------------------------
+Press: Win + X
+Select: "Terminal (Admin)" or "Windows PowerShell (Admin)"
+
+
+STEP 2: Copy and paste this ONE command:
+-----------------------------------------
+
+cd $env:USERPROFILE\Downloads; $env:CIS_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtazEzMTFzdXNlQGdtYWlsLmNvbSIsImV4cCI6MTc2MTE5NjYwNH0.MDpsUTKymP7SfFWuLmzWm_TMgsramWm6uERK5gI8E"; Invoke-WebRequest -Uri "https://cis-audit-api.onrender.com/api/v1/downloads/agent/windows" -OutFile "cis-scanner-windows.exe"; .\cis-scanner-windows.exe
+
+
+STEP 3: Press Enter and wait (30-60 seconds)
+---------------------------------------------
+The scanner will:
+✓ Download automatically
+✓ Run the scan
+✓ Upload results to dashboard
+
+
+STEP 4: Check results
+---------------------
+Go to: https://cis-audit-dashboard.vercel.app/scans
+You should see your scan result!
+
+
+================================================================================
+  ⚡ EVEN EASIER METHOD
+================================================================================
+
+1. Find the file: run-scanner.bat (in this folder)
+2. RIGHT-CLICK on it
+3. Select: "Run as administrator"
+4. Done! Scanner will run automatically
+
+================================================================================
+
+TROUBLESHOOTING:
+- If Windows blocks the scanner: Click "More info" → "Run anyway"
+- If token expired: Get new token from https://cis-audit-dashboard.vercel.app/quick-scan
+- Need help? Check: QUICK_SCANNER_COMMANDS.md
+
+================================================================================

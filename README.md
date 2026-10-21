@@ -6,6 +6,30 @@ Enterprise-grade security compliance platform for automated CIS benchmark auditi
 [![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://python.org)
 [![React](https://img.shields.io/badge/react-18.2-blue.svg)](https://reactjs.org)
 [![FastAPI](https://img.shields.io/badge/fastapi-0.115-green.svg)](https://fastapi.tiangolo.com)
+[![Live Demo](https://img.shields.io/badge/demo-live-success.svg)](https://cis-audit-dashboard.vercel.app)
+
+---
+
+## 🌐 Live Deployment
+
+- **Frontend**: https://cis-audit-dashboard.vercel.app
+- **Backend API**: https://cis-audit-api.onrender.com
+- **Health Check**: https://cis-audit-api.onrender.com/health
+
+---
+
+## 🚨 Quick Deployment Fix
+
+**Having database connection issues?** See our deployment guides:
+
+| Guide | Use Case | Time |
+|-------|----------|------|
+| [**MASTER_DEPLOYMENT_GUIDE.md**](MASTER_DEPLOYMENT_GUIDE.md) | Start here - Complete overview | 15 min |
+| [**STEP_BY_STEP_POSTGRESQL_FIX.md**](STEP_BY_STEP_POSTGRESQL_FIX.md) | Step-by-step PostgreSQL setup | 10 min |
+| [**CHECK_RENDER_SETUP.md**](CHECK_RENDER_SETUP.md) | Diagnose your current setup | 5 min |
+| [**PERMANENT_POSTGRESQL_SETUP.md**](PERMANENT_POSTGRESQL_SETUP.md) | Detailed PostgreSQL guide | 15 min |
+
+**Most common issue**: DATABASE_URL has incomplete hostname (missing `.render.com` domain suffix)
 
 ---
 
@@ -20,6 +44,7 @@ CIS Audit Dashboard automates CIS (Center for Internet Security) benchmark audit
 - **Multi-tenant Architecture** - Organization-based isolation with RBAC
 - **Comprehensive Reporting** - Executive, technical, compliance, and risk reports
 - **Enterprise Security** - JWT authentication, CSRF protection, rate limiting
+- **Free Tier Ready** - Optimized for Render + Vercel free tiers
 
 ---
 
