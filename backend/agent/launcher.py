@@ -194,18 +194,20 @@ def main():
     success, result = send_results(device, results, API_URL, token)
     
     if success:
-        print(f"✅ Success! Scan ID: {result.get('id', 'unknown')}")
+        scan_id = result.get('id', 'unknown')
+        print(f"✅ Success! Scan ID: {scan_id}")
         print(f"\n🌐 View results:")
-        print(f"   {DASHBOARD_URL}/dashboard")
-        print(f"   {DASHBOARD_URL}/scans/{result.get('id', '')}")
+        print(f"   {DASHBOARD_URL}/scans")
         
-        # Try to open browser automatically
+        # Try to open browser automatically to scans page
         try:
             import webbrowser
-            webbrowser.open(f"{DASHBOARD_URL}/dashboard")
+            # Open directly to scans page (more reliable than /dashboard)
+            webbrowser.open(f"{DASHBOARD_URL}/scans")
             print("\n✅ Dashboard opened in browser!")
-        except:
-            pass
+        except Exception as e:
+            print(f"\n⚠️  Could not open browser automatically: {e}")
+            print(f"   Please open manually: {DASHBOARD_URL}/scans")
     else:
         print(f"❌ Upload failed: {result}")
         print("\nResults have been displayed above but not saved to dashboard.")
