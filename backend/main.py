@@ -137,7 +137,7 @@ app.include_router(reports.router,    prefix="/api",      tags=["Reports"])
 app.include_router(billing.router,    prefix="/billing",  tags=["Billing"])
 app.include_router(orgs.router,       prefix="/orgs",     tags=["Organizations"])
 app.include_router(compliance.router, prefix="/api",      tags=["Compliance"])
-app.include_router(downloads.router,  prefix="",          tags=["Downloads"])  # No prefix for /downloads
+app.include_router(downloads.router,  prefix="",          tags=["Downloads"])  # No prefix - uses /downloads directly
 app.include_router(exports.router,    prefix="/api",      tags=["Exports"])
 
 # ── Health Check ─────────────────────────────────────────

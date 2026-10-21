@@ -344,6 +344,134 @@ def check_service_disabled(service_name, check_id, title, description):
     )
 
 
+# ── Additional Security Checks (More Device-Specific) ────────────────
+
+def check_bitlocker_status():
+    """Check if BitLocker encryption is enabled on system drive"""
+    out = run_powershell("Get-BitLockerVolume -MountPoint C: | Select-Object -ExpandProperty VolumeStatus")
+    encrypted = "FullyEncrypted" in out or "EncryptionInProgress" in out
+    status = "PASS" if encrypted else "FAIL"
+    return result(
+        "WIN-SEC-001", "BitLocker Drive Encryption",
+        "System drive should be encrypted with BitLocker to protect data at rest.",
+        status, "high",
+        out.strip() if out else "Not Encrypted", "FullyEncrypted",
+        "Enable BitLocker: Control Panel → System and Security → BitLocker Drive Encryption"
+    )
+
+
+def check_uac_enabled():
+    """Check if User Account Control is enabled"""
+    val = get_registry_value(
+        winreg.HKEY_LOCAL_MACHINE,
+        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System",
+        "EnableLUA"
+    )
+    status = "PASS" if val == 1 else "FAIL"
+    return result(
+        "WIN-SEC-002", "User Account Control (UAC) Enabled",
+        "UAC should be enabled to prevent unauthorized system changes.",
+        status, "critical",
+        "Enabled" if val == 1 else "Disabled", "Enabled",
+        "Enable UAC: Control Panel → User Accounts → Change User Account Control settings"
+    )
+
+
+def check_smb_v1_disabled():
+    """Check if SMBv1 protocol is disabled (known vulnerability)"""
+    out = run_powershell("Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol | Select-Object -ExpandProperty State")
+    disabled = "Disabled" in out
+    status = "PASS" if disabled else "FAIL"
+    return result(
+        "WIN-SEC-003", "SMBv1 Protocol Disabled",
+        "SMBv1 has critical vulnerabilities (WannaCry, NotPetya) and must be disabled.",
+        status, "critical",
+        out.strip() if out else "Unknown", "Disabled",
+        "Disable SMBv1: PowerShell as Admin → Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol"
+    )
+
+
+def check_windows_defender_signatures():
+    """Check if Windows Defender signatures are up to date"""
+    out = run_powershell("Get-MpComputerStatus | Select-Object -ExpandProperty AntivirusSignatureAge")
+    try:
+        age = int(out.strip()) if out else 999
+        status = "PASS" if age <= 7 else "FAIL"
+        age_str = f"{age} days old"
+    except:
+        age_str = "Unknown"
+        status = "WARN"
+    
+    return result(
+        "WIN-AV-002", "Windows Defender Signatures Up-to-Date",
+        "Antivirus signatures should be updated at least weekly.",
+        status, "high",
+        age_str, "Less than 7 days old",
+        "Update signatures: Windows Security → Virus & threat protection → Check for updates"
+    )
+
+
+def check_powershell_logging():
+    """Check if PowerShell script block logging is enabled"""
+    val = get_registry_value(
+        winreg.HKEY_LOCAL_MACHINE,
+        r"SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging",
+        "EnableScriptBlockLogging"
+    )
+    status = "PASS" if val == 1 else "FAIL"
+    return result(
+        "WIN-AUD-003", "PowerShell Script Block Logging",
+        "PowerShell commands should be logged for security monitoring.",
+        status, "medium",
+        "Enabled" if val == 1 else "Disabled", "Enabled",
+        "Enable via Group Policy: Administrative Templates → Windows Components → Windows PowerShell"
+    )
+
+
+def check_local_admin_count():
+    """Check number of local administrators (should be minimal)"""
+    out = run_powershell("Get-LocalGroupMember -Group 'Administrators' | Measure-Object | Select-Object -ExpandProperty Count")
+    try:
+        count = int(out.strip()) if out else 0
+        status = "PASS" if count <= 2 else "WARN"
+    except:
+        count = "Unknown"
+        status = "WARN"
+    
+    return result(
+        "WIN-USR-003", "Local Administrator Count",
+        "Minimize number of users with local administrator privileges.",
+        status, "medium",
+        f"{count} administrators", "2 or fewer",
+        "Remove unnecessary admin users: Computer Management → Local Users and Groups"
+    )
+
+
+def check_screensaver_timeout():
+    """Check if screensaver is configured with timeout"""
+    val = get_registry_value(
+        winreg.HKEY_CURRENT_USER,
+        r"Control Panel\Desktop",
+        "ScreenSaveTimeOut"
+    )
+    try:
+        timeout = int(val) if val else 0
+        # Timeout in seconds, should be 900 or less (15 minutes)
+        status = "PASS" if 0 < timeout <= 900 else "FAIL"
+        timeout_str = f"{timeout // 60} minutes" if timeout > 0 else "Disabled"
+    except:
+        timeout_str = "Unknown"
+        status = "WARN"
+    
+    return result(
+        "WIN-SEC-004", "Screensaver Timeout Configured",
+        "Screen should lock automatically after inactivity (max 15 minutes).",
+        status, "low",
+        timeout_str, "15 minutes or less",
+        "Configure: Settings → Personalization → Lock screen → Screen timeout settings"
+    )
+
+
 import concurrent.futures
 
 # ── Main Entry Point ──────────────────────────────────────────────────
@@ -351,6 +479,7 @@ import concurrent.futures
 def run_windows_checks():
     """Run all Windows CIS checks and return a list of results."""
     print("  Running Windows 11 CIS Benchmark checks (Parallel Execution)...")
+    print("  These checks read YOUR actual system configuration...\n")
 
     checks = [
         # Account policy
@@ -361,6 +490,7 @@ def run_windows_checks():
         # User accounts
         check_guest_account_disabled,
         check_administrator_renamed,
+        check_local_admin_count,
         # Firewall
         check_firewall_domain,
         check_firewall_private,
@@ -371,9 +501,16 @@ def run_windows_checks():
         # Updates & AV
         check_windows_update_enabled,
         check_defender_realtime,
+        check_windows_defender_signatures,
+        # Security features
+        check_bitlocker_status,
+        check_uac_enabled,
+        check_smb_v1_disabled,
+        check_screensaver_timeout,
         # Auditing
         check_audit_logon_events,
         check_audit_account_logon,
+        check_powershell_logging,
     ]
 
     # Unnecessary services
@@ -385,7 +522,7 @@ def run_windows_checks():
 
     results = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         future_to_check = {executor.submit(check_fn): check_fn.__name__ for check_fn in checks}
         for future in concurrent.futures.as_completed(future_to_check):
             try:
@@ -407,5 +544,6 @@ def run_windows_checks():
                 print(f"    ⚠️  Service check failed: {e}")
 
     print(f"\n  ✔ {len(results)} checks completed.")
+    print(f"  📊 These results are specific to THIS device's configuration.")
     return results
 
